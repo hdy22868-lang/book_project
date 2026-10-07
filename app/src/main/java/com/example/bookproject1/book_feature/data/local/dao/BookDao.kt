@@ -12,16 +12,24 @@ import kotlinx.coroutines.flow.Flow
 interface BookDao {
 
     // إدخال نصوص الكتاب (سنستخدمها مرة واحدة عند حقن الـ JSON لأول مرة)
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     suspend fun insertParagraphs(paragraphs: List<BookEntity>)
 
     // جلب جزء كامل من الكتاب مرتباً حسب التسلسل لعرضه
     @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber ORDER BY orderIndex ASC")
     fun getBookPart(partNumber: Int): Flow<List<BookEntity>>
 
-    // بحث سريع في كل نصوص الكتاب
-    @Query("SELECT * FROM book_paragraphs WHERE contentText LIKE '%' || :searchQuery || '%' ORDER BY partNumber, orderIndex ASC")
-    suspend fun searchContent(searchQuery: String): List<BookEntity>
+    // بحث سريع عبر جدول الـ FTS
+    @Query("""
+    SELECT * FROM book_paragraphs
+    WHERE id IN (
+        SELECT rowid FROM book_paragraphs_fts
+        WHERE book_paragraphs_fts MATCH :ftsQuery
+    )
+    ORDER BY partNumber, orderIndex
+    LIMIT :limit
+""")
+    suspend fun search(ftsQuery: String, limit: Int): List<BookEntity>
 
     // فحص ما إذا كان الجزء موجود مسبقاً لمنع قراءة الـ JSON مرتين
     @Query("SELECT COUNT(*) FROM book_paragraphs WHERE partNumber = :partNumber")
@@ -39,7 +47,12 @@ interface BookDao {
     @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber AND mainSectionName = :babName AND faslName = :faslName AND mabhathName = :mabhathName ORDER BY orderIndex ASC")
     fun getMabhathContent(partNumber: Int, babName: String, faslName: String, mabhathName: String): Flow<List<BookEntity>>
 
-    // (اختياري ومهم للفهرس) جلب العناوين كاملة لبناء الفهرس المتفرع بدون نصوص
-    @Query("SELECT DISTINCT mainSectionName, mainSectionTitle, faslName, faslTitle, mabhathName, mabhathTitle FROM book_paragraphs WHERE partNumber = :partNumber ORDER BY orderIndex ASC")
+    @Query("""
+    SELECT mainSectionName, mainSectionTitle, faslName, faslTitle, mabhathName, mabhathTitle
+    FROM book_paragraphs
+    WHERE partNumber = :partNumber
+    GROUP BY mainSectionName, faslName, mabhathName
+    ORDER BY MIN(orderIndex) ASC
+""")
     suspend fun getTableOfContents(partNumber: Int): List<TocItemTuple>
 }

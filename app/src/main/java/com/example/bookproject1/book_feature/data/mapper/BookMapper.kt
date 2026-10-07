@@ -4,6 +4,7 @@ import com.example.bookproject1.book_feature.data.local.entity.BookEntity
 import com.example.bookproject1.book_feature.data.local.entity.TocItemTuple
 import com.example.bookproject1.book_feature.data.remote.dto.BookTreeDto
 import com.example.bookproject1.book_feature.data.remote.dto.SectionDto
+import com.example.bookproject1.book_feature.data.util.ArabicNormalizer
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
 import com.example.bookproject1.book_feature.domain.model.TocItem
 
@@ -37,7 +38,8 @@ fun BookTreeDto.toEntityList(partNumber:Int):List<BookEntity>{
                         mabhathName = mName,
                         mabhathTitle = mTitle,
                         subheading = sub,
-                        contentText = paragraphText
+                        contentText = paragraphText,
+                        searchText = ArabicNormalizer.normalize(paragraphText)
                     )
                 )
             }
@@ -60,22 +62,17 @@ fun BookTreeDto.toEntityList(partNumber:Int):List<BookEntity>{
         )
 
         bab.fasls?.forEach { fasl ->
-            // نصوص الفصل المباشرة (التي تأتي قبل المباحث)
             processSections(
                 sections = fasl.sections,
-                mainName = bab.name,
-                mainTitle = bab.title,
-                fName = fasl.name
+                mainName = bab.name, mainTitle = bab.title,
+                fName = fasl.name, fTitle = fasl.title
             )
-
             fasl.mabhaths?.forEach { mabhath ->
-                // نصوص المبحث الفعلية
                 processSections(
                     sections = mabhath.sections,
-                    mainName = bab.name,
-                    mainTitle = bab.title,
-                    fName = fasl.name,
-                    mName = mabhath.name
+                    mainName = bab.name, mainTitle = bab.title,
+                    fName = fasl.name, fTitle = fasl.title,
+                    mName = mabhath.name, mTitle = mabhath.title
                 )
             }
         }
