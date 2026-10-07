@@ -1,0 +1,45 @@
+package com.example.bookproject1.book_feature.data.local.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.example.bookproject1.book_feature.data.local.entity.BookEntity
+import com.example.bookproject1.book_feature.data.local.entity.TocItemTuple
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface BookDao {
+
+    // إدخال نصوص الكتاب (سنستخدمها مرة واحدة عند حقن الـ JSON لأول مرة)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertParagraphs(paragraphs: List<BookEntity>)
+
+    // جلب جزء كامل من الكتاب مرتباً حسب التسلسل لعرضه
+    @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber ORDER BY orderIndex ASC")
+    fun getBookPart(partNumber: Int): Flow<List<BookEntity>>
+
+    // بحث سريع في كل نصوص الكتاب
+    @Query("SELECT * FROM book_paragraphs WHERE contentText LIKE '%' || :searchQuery || '%' ORDER BY partNumber, orderIndex ASC")
+    suspend fun searchContent(searchQuery: String): List<BookEntity>
+
+    // فحص ما إذا كان الجزء موجود مسبقاً لمنع قراءة الـ JSON مرتين
+    @Query("SELECT COUNT(*) FROM book_paragraphs WHERE partNumber = :partNumber")
+    suspend fun getParagraphCountForPart(partNumber: Int): Int
+
+    // جلب محتوى "باب" كامل بكل فصوله ومباحثه
+    @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber AND mainSectionName = :babName ORDER BY orderIndex ASC")
+    fun getBabContent(partNumber: Int, babName: String): Flow<List<BookEntity>>
+
+    // جلب محتوى "فصل" محدد داخل باب معين
+    @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber AND mainSectionName = :babName AND faslName = :faslName ORDER BY orderIndex ASC")
+    fun getFaslContent(partNumber: Int, babName: String, faslName: String): Flow<List<BookEntity>>
+
+    // جلب محتوى "مبحث" محدد جداً
+    @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber AND mainSectionName = :babName AND faslName = :faslName AND mabhathName = :mabhathName ORDER BY orderIndex ASC")
+    fun getMabhathContent(partNumber: Int, babName: String, faslName: String, mabhathName: String): Flow<List<BookEntity>>
+
+    // (اختياري ومهم للفهرس) جلب العناوين كاملة لبناء الفهرس المتفرع بدون نصوص
+    @Query("SELECT DISTINCT mainSectionName, mainSectionTitle, faslName, faslTitle, mabhathName, mabhathTitle FROM book_paragraphs WHERE partNumber = :partNumber ORDER BY orderIndex ASC")
+    suspend fun getTableOfContents(partNumber: Int): List<TocItemTuple>
+}
