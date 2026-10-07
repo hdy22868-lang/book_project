@@ -7,5 +7,7 @@ data class TocItemTuple(
     val faslName: String?,
     val faslTitle: String?,
     val mabhathName: String?,
-    val mabhathTitle: String?
+    val mabhathTitle: String?,
+    val startIndex: Int,
+    val endIndex: Int
 )

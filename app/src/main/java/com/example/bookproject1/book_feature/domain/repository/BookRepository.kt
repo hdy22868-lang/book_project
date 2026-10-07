@@ -22,4 +22,6 @@ interface BookRepository {
 
     // 6. البحث السريع في كل نصوص الكتاب
     suspend fun searchBook(query: String): List<BookParagraph>
+
+    suspend fun getSectionContent(partNumber: Int, startIndex: Int, endIndex: Int): List<BookParagraph>
 }

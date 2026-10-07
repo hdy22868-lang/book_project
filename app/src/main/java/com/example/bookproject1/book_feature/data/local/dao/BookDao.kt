@@ -48,11 +48,19 @@ interface BookDao {
     fun getMabhathContent(partNumber: Int, babName: String, faslName: String, mabhathName: String): Flow<List<BookEntity>>
 
     @Query("""
-    SELECT mainSectionName, mainSectionTitle, faslName, faslTitle, mabhathName, mabhathTitle
+    SELECT mainSectionName, mainSectionTitle, faslName, faslTitle, mabhathName, mabhathTitle,
+           MIN(orderIndex) AS startIndex, MAX(orderIndex) AS endIndex
     FROM book_paragraphs
     WHERE partNumber = :partNumber
     GROUP BY mainSectionName, faslName, mabhathName
     ORDER BY MIN(orderIndex) ASC
 """)
     suspend fun getTableOfContents(partNumber: Int): List<TocItemTuple>
+
+    @Query("""
+    SELECT * FROM book_paragraphs
+    WHERE partNumber = :partNumber AND orderIndex BETWEEN :startIndex AND :endIndex
+    ORDER BY orderIndex
+""")
+    suspend fun getRange(partNumber: Int, startIndex: Int, endIndex: Int): List<BookEntity>
 }

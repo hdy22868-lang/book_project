@@ -73,6 +73,12 @@ class BookRepositoryImpl(
         return bookDao.search(ftsQuery, limit = 50).map { it.toDomainModel() }
     }
 
+    override suspend fun getSectionContent(
+        partNumber: Int, startIndex: Int, endIndex: Int
+    ): List<BookParagraph> = withContext(Dispatchers.Default) {
+        bookDao.getRange(partNumber, startIndex, endIndex).map { it.toDomainModel() }
+    }
+
     private fun buildFtsQuery(raw: String): String? {
         val words = ArabicNormalizer.normalize(raw)
             .split(Regex("[^\\p{L}\\p{N}]+"))

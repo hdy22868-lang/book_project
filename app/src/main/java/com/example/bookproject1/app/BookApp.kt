@@ -3,7 +3,7 @@ package com.example.bookproject1.app
 import android.app.Application
 import com.example.bookproject1.book_feature.di.bookModule
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.GlobalContext.startKoin
+import org.koin.core.context.startKoin
 
 class BookApp : Application() {
     override fun onCreate() {

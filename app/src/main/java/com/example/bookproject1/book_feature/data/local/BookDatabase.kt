@@ -8,7 +8,7 @@ import com.example.bookproject1.book_feature.data.local.entity.BookFtsEntity
 
 @Database(entities = [BookEntity::class, BookFtsEntity::class],
     version = 1,
-    exportSchema = false)
+    exportSchema = true)
 abstract class BookDatabase : RoomDatabase() {
 
     // هذا السطر يخلينا نكدر نوصل لدوال الـ DAO من خلال قاعدة البيانات

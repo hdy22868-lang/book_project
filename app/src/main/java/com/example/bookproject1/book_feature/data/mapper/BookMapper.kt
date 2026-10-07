@@ -80,19 +80,13 @@ fun BookTreeDto.toEntityList(partNumber:Int):List<BookEntity>{
 
     return entities
 }
-fun BookEntity.toDomainModel(): BookParagraph {
-    // ندمج العناوين (مثال: الباب الأول - الفصل الثاني)
-    val sectionParts = listOfNotNull(mainSectionName, faslName, mabhathName)
-    val fullSectionTitle = sectionParts.joinToString(" - ")
-
-    return BookParagraph(
-        id = this.id,
-        partNumber = this.partNumber,
-        sectionTitle = fullSectionTitle,
-        subheading = this.subheading,
-        contentText = this.contentText
-    )
-}
+fun BookEntity.toDomainModel() = BookParagraph(
+    id = id, partNumber = partNumber, orderIndex = orderIndex,
+    mainSectionName = mainSectionName, mainSectionTitle = mainSectionTitle,
+    faslName = faslName, faslTitle = faslTitle,
+    mabhathName = mabhathName, mabhathTitle = mabhathTitle,
+    subheading = subheading, contentText = contentText
+)
 // تحويل كائن الفهرس
 fun TocItemTuple.toDomainModel(): TocItem {
     return TocItem(
@@ -101,6 +95,8 @@ fun TocItemTuple.toDomainModel(): TocItem {
         faslName = this.faslName,
         faslTitle = this.faslTitle,
         mabhathName = this.mabhathName,
-        mabhathTitle = this.mabhathTitle
+        mabhathTitle = this.mabhathTitle,
+        startIndex = this.startIndex,
+        endIndex = this.endIndex
     )
 }
