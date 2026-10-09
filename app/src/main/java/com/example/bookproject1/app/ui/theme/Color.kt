@@ -1,4 +1,4 @@
-package com.example.bookproject1.ui.theme
+package com.example.bookproject1.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

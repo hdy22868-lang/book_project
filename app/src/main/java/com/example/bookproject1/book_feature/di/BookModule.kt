@@ -23,7 +23,7 @@ val bookModule = module {
         Room.databaseBuilder(
             androidContext(),
             BookDatabase::class.java,
-            "Almodheef_Book_Database"
+            "Almasabih_Book_Database"
         ).build()
     }
 

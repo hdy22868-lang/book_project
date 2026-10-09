@@ -1,21 +1,18 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
 }
 
 android {
     namespace = "com.example.bookproject1"
-    compileSdk {
-        version = release(37) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37 // تم تعديلها للصيغة المستقرة
 
     defaultConfig {
         applicationId = "com.example.bookproject1"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 37 // متوافق مع الإصدار المستقر
         versionCode = 1
         versionName = "1.0"
 
@@ -31,17 +28,25 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    kotlinOptions {
+        jvmTarget = "11" // هذا السطر ضروري لعمل Jetpack Compose
+    }
+
     buildFeatures {
         compose = true
     }
 }
+
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
@@ -56,9 +61,10 @@ dependencies {
     val koin_version = "3.5.6"
     implementation("io.insert-koin:koin-android:$koin_version")
     implementation("io.insert-koin:koin-androidx-compose:$koin_version")
-    ksp(libs.androidx.room.compiler)
 
+    ksp(libs.androidx.room.compiler)
     implementation("com.google.code.gson:gson:2.14.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
