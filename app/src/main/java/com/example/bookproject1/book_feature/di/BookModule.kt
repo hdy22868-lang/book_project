@@ -4,8 +4,12 @@ import androidx.room.Room
 import com.example.bookproject1.book_feature.data.local.BookDatabase
 import com.example.bookproject1.book_feature.data.repository.BookRepositoryImpl
 import com.example.bookproject1.book_feature.domain.repository.BookRepository
+import com.example.bookproject1.book_feature.presentation.booktoc.logic.BookTocViewModel
+import com.example.bookproject1.book_feature.presentation.home.logic.HomeViewModel
+import com.example.bookproject1.book_feature.presentation.reading.logic.BookReadingViewModel
 import com.google.gson.Gson
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -23,7 +27,7 @@ val bookModule = module {
         Room.databaseBuilder(
             androidContext(),
             BookDatabase::class.java,
-            "Almasabih_Book_Database"
+            "Almasabeeh_Book_Database"
         ).build()
     }
 
@@ -31,4 +35,8 @@ val bookModule = module {
     single {
         get<BookDatabase>().bookDao
     }
+
+    viewModelOf(::HomeViewModel)
+    viewModelOf(::BookTocViewModel)
+    viewModelOf(::BookReadingViewModel)
 }

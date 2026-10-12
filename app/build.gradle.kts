@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -57,6 +58,11 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.room.ktx)
+    // مكتبة Navigation الخاصة بـ Compose (الإصدار 2.8+ يدعم الـ Type-Safe Navigation)
+    implementation("androidx.navigation:navigation-compose:2.8.3")
+
+
+    implementation("androidx.compose.material:material-icons-extended")
 
     val koin_version = "3.5.6"
     implementation("io.insert-koin:koin-android:$koin_version")
@@ -64,6 +70,8 @@ dependencies {
 
     ksp(libs.androidx.room.compiler)
     implementation("com.google.code.gson:gson:2.14.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

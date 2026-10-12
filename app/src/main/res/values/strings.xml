@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">bookproject1</string>
+    <string name="part_one">الجزء الأول</string>
+    <string name="part_two">الجزء الثاني</string>
+    <string name="part_three">الجزء الثالث</string>
+    <string name="part_four">الجزء الرابع</string>
+    <string name="part_five">الجزء الخامس</string>
+    <string name="home_title">الرئيسية</string>
+    <string name="toggle_layout">تغيير طريقة العرض</string>
+    <string name="untitled_chapter">بدون عنوان</string>
+    <string name="open_chapter_desc">فتح الفصل</string>
+    <string name="mock_main_section">الباب الأول: في فضل العلم</string>
+    <string name="mock_chapter_title">المبحث الأول: تعريف العلم وأهميته</string>
+    <string name="part_title">الجزء %d</string>
+    <string name="back_button_desc">رجوع</string>
+    <string name="no_chapters_found">لا توجد فصول في هذا الجزء.</string>
 </resources>

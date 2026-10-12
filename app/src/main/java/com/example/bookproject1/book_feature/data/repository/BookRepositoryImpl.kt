@@ -7,7 +7,7 @@ import com.example.bookproject1.book_feature.data.mapper.toEntityList
 import com.example.bookproject1.book_feature.data.remote.dto.BookTreeDto
 import com.example.bookproject1.book_feature.data.util.ArabicNormalizer
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
-import com.example.bookproject1.book_feature.domain.model.TocItem
+import com.example.bookproject1.book_feature.domain.model.TocNode
 import com.example.bookproject1.book_feature.domain.repository.BookRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -36,9 +36,73 @@ class BookRepositoryImpl(
         }
     }
 
-    override suspend fun getTableOfContents(partNumber: Int): List<TocItem> {
-        // نجيب العناوين من القاعدة (Entity) ونحولها إلى شكل الواجهات (Domain)
-        return bookDao.getTableOfContents(partNumber).map { it.toDomainModel() }
+    override suspend fun getTablOfContents(partNumber: Int): List<TocNode> {
+        // 1. نجلب البيانات المسطحة من قاعدة البيانات (Room)
+        val flatList = bookDao.getTableOfContents(partNumber)
+
+        val tree = mutableListOf<TocNode>()
+
+        // 2. تجميع البيانات حسب الباب (mainSectionTitle)
+        val groupedByMain = flatList.groupBy { it.mainSectionTitle }
+
+        for ((mainTitle, mainItems) in groupedByMain) {
+            val validMainTitle = mainTitle?.takeIf { it.isNotEmpty() } ?: "بدون عنوان"
+
+            // فحص: هل يوجد فصول داخل هذا الباب؟
+            val validFasls = mainItems.filter { !it.faslTitle.isNullOrEmpty() }
+
+            if (validFasls.isEmpty()) {
+                // إذا لم توجد فصول، (مثل: المقدمة أو سيرة الإمام)، فهذا الباب يعتبر ورقة نهائية (Leaf)
+                val firstItem = mainItems.first()
+                val leafTitle = firstItem.mabhathTitle?.takeIf { it.isNotEmpty() } ?: validMainTitle
+                tree.add(
+                    TocNode.Leaf(
+                        title = leafTitle,
+                        startIndex = firstItem.startIndex,
+                        endIndex = firstItem.endIndex
+                    )
+                )
+            } else {
+                // إذا وجدت فصول، إذن هذا الباب هو "فرع" (Branch) يحتوي على أبناء
+                val faslNodes = mutableListOf<TocNode>()
+                val groupedByFasl = mainItems.groupBy { it.faslTitle }
+
+                for ((faslTitle, faslItems) in groupedByFasl) {
+                    if (faslTitle.isNullOrEmpty()) {
+                        // إذا كان هناك مباحث تابعة للباب مباشرة دون فصل
+                        faslItems.forEach { item ->
+                            val t = item.mabhathTitle?.takeIf { it.isNotEmpty() } ?: "بدون عنوان"
+                            faslNodes.add(TocNode.Leaf(title = t, startIndex = item.startIndex, endIndex = item.endIndex))
+                        }
+                        continue
+                    }
+
+                    // فحص: هل يوجد مباحث داخل هذا الفصل؟
+                    val validMabhaths = faslItems.filter { !it.mabhathTitle.isNullOrEmpty() }
+
+                    if (validMabhaths.isEmpty()) {
+                        // إذا كان الفصل لا يحتوي على مباحث، فهو ورقة نهائية (Leaf)
+                        val first = faslItems.first()
+                        faslNodes.add(TocNode.Leaf(title = faslTitle, startIndex = first.startIndex, endIndex = first.endIndex))
+                    } else {
+                        // إذا كان يحتوي على مباحث، نقوم بتحويلها إلى أوراق (Leaves)
+                        val mabhathNodes = validMabhaths.map { mabhath ->
+                            TocNode.Leaf(
+                                title = mabhath.mabhathTitle!!,
+                                startIndex = mabhath.startIndex,
+                                endIndex = mabhath.endIndex
+                            )
+                        }
+                        // نضيف الفصل كـ "فرع" (Branch) داخله المباحث
+                        faslNodes.add(TocNode.Branch(title = faslTitle, children = mabhathNodes))
+                    }
+                }
+                // أخيرًا، نضيف الباب كـ "فرع" رئيسي داخله الفصول
+                tree.add(TocNode.Branch(title = validMainTitle, children = faslNodes))
+            }
+        }
+
+        return tree
     }
 
     override fun getBabContent(partNumber: Int, babName: String): Flow<List<BookParagraph>> {

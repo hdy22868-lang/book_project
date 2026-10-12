@@ -1,12 +1,10 @@
 package com.example.bookproject1.book_feature.data.mapper
 
 import com.example.bookproject1.book_feature.data.local.entity.BookEntity
-import com.example.bookproject1.book_feature.data.local.entity.TocItemTuple
 import com.example.bookproject1.book_feature.data.remote.dto.BookTreeDto
 import com.example.bookproject1.book_feature.data.remote.dto.SectionDto
 import com.example.bookproject1.book_feature.data.util.ArabicNormalizer
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
-import com.example.bookproject1.book_feature.domain.model.TocItem
 
 
 fun BookTreeDto.toEntityList(partNumber:Int):List<BookEntity>{
@@ -87,16 +85,3 @@ fun BookEntity.toDomainModel() = BookParagraph(
     mabhathName = mabhathName, mabhathTitle = mabhathTitle,
     subheading = subheading, contentText = contentText
 )
-// تحويل كائن الفهرس
-fun TocItemTuple.toDomainModel(): TocItem {
-    return TocItem(
-        mainSectionName = this.mainSectionName,
-        mainSectionTitle = this.mainSectionTitle,
-        faslName = this.faslName,
-        faslTitle = this.faslTitle,
-        mabhathName = this.mabhathName,
-        mabhathTitle = this.mabhathTitle,
-        startIndex = this.startIndex,
-        endIndex = this.endIndex
-    )
-}

@@ -1,7 +1,7 @@
 package com.example.bookproject1.book_feature.domain.repository
 
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
-import com.example.bookproject1.book_feature.domain.model.TocItem
+import com.example.bookproject1.book_feature.domain.model.TocNode
 import kotlinx.coroutines.flow.Flow
 
 interface BookRepository {
@@ -9,7 +9,7 @@ interface BookRepository {
     suspend fun seedDatabaseIfEmpty(partNumber: Int)
 
     // 2. جلب محتوى الفهرس كامل (أبواب، فصول، ومباحث) لبناء الكارتات
-    suspend fun getTableOfContents(partNumber: Int): List<TocItem>
+    suspend fun getTablOfContents(partNumber: Int): List<TocNode>
 
     // 3. جلب محتوى "باب" كامل
     fun getBabContent(partNumber: Int, babName: String): Flow<List<BookParagraph>>
