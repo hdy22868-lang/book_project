@@ -9,8 +9,6 @@ import com.example.bookproject1.book_feature.presentation.booktoc.logic.BookTocV
 import com.example.bookproject1.book_feature.presentation.booktoc.ui.BookTocScreen
 import com.example.bookproject1.book_feature.presentation.home.logic.HomeViewModel
 import com.example.bookproject1.book_feature.presentation.home.ui.HomeScreen
-import com.example.bookproject1.book_feature.presentation.reading.logic.BookReadingViewModel
-import com.example.bookproject1.book_feature.presentation.reading.ui.BookReadingScreen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -53,16 +51,6 @@ fun AppNavigation() {
                         )
                     )
                 }
-            )
-        }
-
-        // 3. شاشة القراءة
-        composable<BookReadingRoute> {
-            val viewModel = koinViewModel<BookReadingViewModel>()
-
-            BookReadingScreen(
-                viewModel = viewModel,
-                onNavigateBack = { navController.navigateUp() }
             )
         }
     }

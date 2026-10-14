@@ -37,69 +37,79 @@ class BookRepositoryImpl(
     }
 
     override suspend fun getTablOfContents(partNumber: Int): List<TocNode> {
-        // 1. نجلب البيانات المسطحة من قاعدة البيانات (Room)
         val flatList = bookDao.getTableOfContents(partNumber)
-
         val tree = mutableListOf<TocNode>()
 
-        // 2. تجميع البيانات حسب الباب (mainSectionTitle)
-        val groupedByMain = flatList.groupBy { it.mainSectionTitle }
+        for ((babName, babRows) in flatList.groupBy { it.mainSectionName }) {
+            val babTitle = babRows.first().mainSectionTitle
+            val faslRows = babRows.filter { it.faslName != null }
 
-        for ((mainTitle, mainItems) in groupedByMain) {
-            val validMainTitle = mainTitle?.takeIf { it.isNotEmpty() } ?: "بدون عنوان"
-
-            // فحص: هل يوجد فصول داخل هذا الباب؟
-            val validFasls = mainItems.filter { !it.faslTitle.isNullOrEmpty() }
-
-            if (validFasls.isEmpty()) {
-                // إذا لم توجد فصول، (مثل: المقدمة أو سيرة الإمام)، فهذا الباب يعتبر ورقة نهائية (Leaf)
-                val firstItem = mainItems.first()
-                val leafTitle = firstItem.mabhathTitle?.takeIf { it.isNotEmpty() } ?: validMainTitle
+            // المقدمتين وسيرة الإمام: ورقة تُقرأ مباشرة
+            if (faslRows.isEmpty()) {
                 tree.add(
                     TocNode.Leaf(
-                        title = leafTitle,
-                        startIndex = firstItem.startIndex,
-                        endIndex = firstItem.endIndex
+                        title = tocLabel(babName, babTitle),
+                        startIndex = babRows.minOf { it.startIndex },
+                        endIndex = babRows.maxOf { it.endIndex }
                     )
                 )
-            } else {
-                // إذا وجدت فصول، إذن هذا الباب هو "فرع" (Branch) يحتوي على أبناء
-                val faslNodes = mutableListOf<TocNode>()
-                val groupedByFasl = mainItems.groupBy { it.faslTitle }
-
-                for ((faslTitle, faslItems) in groupedByFasl) {
-                    if (faslTitle.isNullOrEmpty()) {
-                        // إذا كان هناك مباحث تابعة للباب مباشرة دون فصل
-                        faslItems.forEach { item ->
-                            val t = item.mabhathTitle?.takeIf { it.isNotEmpty() } ?: "بدون عنوان"
-                            faslNodes.add(TocNode.Leaf(title = t, startIndex = item.startIndex, endIndex = item.endIndex))
-                        }
-                        continue
-                    }
-
-                    // فحص: هل يوجد مباحث داخل هذا الفصل؟
-                    val validMabhaths = faslItems.filter { !it.mabhathTitle.isNullOrEmpty() }
-
-                    if (validMabhaths.isEmpty()) {
-                        // إذا كان الفصل لا يحتوي على مباحث، فهو ورقة نهائية (Leaf)
-                        val first = faslItems.first()
-                        faslNodes.add(TocNode.Leaf(title = faslTitle, startIndex = first.startIndex, endIndex = first.endIndex))
-                    } else {
-                        // إذا كان يحتوي على مباحث، نقوم بتحويلها إلى أوراق (Leaves)
-                        val mabhathNodes = validMabhaths.map { mabhath ->
-                            TocNode.Leaf(
-                                title = mabhath.mabhathTitle!!,
-                                startIndex = mabhath.startIndex,
-                                endIndex = mabhath.endIndex
-                            )
-                        }
-                        // نضيف الفصل كـ "فرع" (Branch) داخله المباحث
-                        faslNodes.add(TocNode.Branch(title = faslTitle, children = mabhathNodes))
-                    }
-                }
-                // أخيرًا، نضيف الباب كـ "فرع" رئيسي داخله الفصول
-                tree.add(TocNode.Branch(title = validMainTitle, children = faslNodes))
+                continue
             }
+
+            val babChildren = mutableListOf<TocNode>()
+
+            // نص الباب المباشر (الدعاء نفسه) إن وجد
+            babRows.filter { it.faslName == null }.forEach { row ->
+                babChildren.add(
+                    TocNode.Leaf(
+                        title = babTitle?.takeIf { it.isNotBlank() } ?: babName,
+                        startIndex = row.startIndex,
+                        endIndex = row.endIndex
+                    )
+                )
+            }
+
+            for ((faslName, rows) in faslRows.groupBy { it.faslName }) {
+                val name = faslName ?: continue
+                val faslLabel = tocLabel(name, rows.first().faslTitle)
+                val mabhathRows = rows.filter { it.mabhathName != null }
+                val directRow = rows.firstOrNull { it.mabhathName == null }
+
+                if (mabhathRows.isEmpty()) {
+                    // فصل بدون مباحث: ورقة
+                    babChildren.add(
+                        TocNode.Leaf(
+                            title = faslLabel,
+                            startIndex = rows.minOf { it.startIndex },
+                            endIndex = rows.maxOf { it.endIndex }
+                        )
+                    )
+                } else {
+                    val children = mutableListOf<TocNode>()
+                    // نص الفصل المباشر (قبل المباحث) حتى ما يضيع
+                    if (directRow != null) {
+                        children.add(
+                            TocNode.Leaf(
+                                title = "نص الفصل",
+                                startIndex = directRow.startIndex,
+                                endIndex = directRow.endIndex
+                            )
+                        )
+                    }
+                    mabhathRows.forEach { m ->
+                        children.add(
+                            TocNode.Leaf(
+                                title = tocLabel(m.mabhathName!!, m.mabhathTitle, spaceBeforeColon = false),
+                                startIndex = m.startIndex,
+                                endIndex = m.endIndex
+                            )
+                        )
+                    }
+                    babChildren.add(TocNode.Branch(title = faslLabel, children = children))
+                }
+            }
+
+            tree.add(TocNode.Branch(title = tocLabel(babName, babTitle), children = babChildren))
         }
 
         return tree
@@ -142,6 +152,13 @@ class BookRepositoryImpl(
     ): List<BookParagraph> = withContext(Dispatchers.Default) {
         bookDao.getRange(partNumber, startIndex, endIndex).map { it.toDomainModel() }
     }
+
+    private fun tocLabel(name: String, title: String?, spaceBeforeColon: Boolean = true): String =
+        when {
+            title.isNullOrBlank() -> name
+            spaceBeforeColon -> "$name : $title"
+            else -> "$name: $title"
+        }
 
     private fun buildFtsQuery(raw: String): String? {
         val words = ArabicNormalizer.normalize(raw)

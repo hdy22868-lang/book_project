@@ -14,4 +14,6 @@
     <string name="part_title">الجزء %d</string>
     <string name="back_button_desc">رجوع</string>
     <string name="no_chapters_found">لا توجد فصول في هذا الجزء.</string>
+    <string name="toc_load_error">تعذّر تحميل الفهرس</string>
+    <string name="retry">إعادة المحاولة</string>
 </resources>
