@@ -12,4 +12,9 @@
     <string name="no_chapters_found">لا توجد فصول في هذا الجزء.</string>
     <string name="toc_load_error">تعذّر تحميل الفهرس</string>
     <string name="retry">إعادة المحاولة</string>
+    <string name="choose_color">اختر لون التظليل:</string>
+    <string name="string_distance">ضبط تباعد النصوص</string>
+    <string name="line_distance">تباعد الأسطر: %1$s</string>
+    <string name="line_distence">تباعد الكلمات: %1$s</string>
+    <string name="cant_reload">تعذّر تحميل النص</string>
 </resources>

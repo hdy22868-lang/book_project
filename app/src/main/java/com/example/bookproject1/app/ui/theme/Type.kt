@@ -11,6 +11,7 @@ import com.example.bookproject1.R
 // خط الواجهات، العناوين، والكروت (Tajawal)
 val UiFontFamily = FontFamily(
     Font(R.font.tajawal_regular, FontWeight.Normal),
+    Font(R.font.tajawal_medium, FontWeight.Medium),
     Font(R.font.tajawal_bold, FontWeight.Bold)
 )
 
@@ -55,3 +56,10 @@ val AppTypography = Typography(
         lineHeight = 24.sp
     )
 )
+val Typography.uiBody: TextStyle
+    get() = bodyLarge.copy(
+        fontFamily = UiFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp,
+        lineHeight = 30.sp
+    )

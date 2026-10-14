@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,6 +37,7 @@ import com.example.bookproject1.R
 import com.example.bookproject1.book_feature.domain.model.TocNode
 import com.example.bookproject1.book_feature.presentation.booktoc.logic.BookTocUiState
 import com.example.bookproject1.book_feature.presentation.booktoc.logic.BookTocViewModel
+import com.example.bookproject1.book_feature.presentation.component.logic.BookPart
 
 private fun flatten(
     nodes: List<TocNode>,
@@ -81,11 +83,11 @@ private fun BookTocContent(
             modifier = Modifier.fillMaxSize(),
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
-                TopAppBar(
+                CenterAlignedTopAppBar(
                     title = {
                         Text(
-                            text = stringResource(R.string.part_title, uiState.partNumber),
-                            fontWeight = FontWeight.Bold
+                            text = stringResource(BookPart.titleResOf(uiState.partNumber)),
+                            style = MaterialTheme.typography.titleLarge
                         )
                     },
                     navigationIcon = {

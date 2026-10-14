@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.bookproject1.app.ui.theme.uiBody
 import com.example.bookproject1.book_feature.domain.model.TocNode
 
 data class TocRow(val node: TocNode, val depth: Int)
@@ -39,7 +40,7 @@ fun TocRowItem(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = (row.depth * 14).dp) // في RTL يعني إزاحة من اليمين
+            .padding(start = (row.depth * 14).dp)
             .clickable {
                 when (node) {
                     is TocNode.Branch -> onToggle(node.id)
@@ -53,10 +54,10 @@ fun TocRowItem(
         ) {
             Text(
                 text = node.title,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (isBranch) FontWeight.Bold else FontWeight.Normal,
+                style = MaterialTheme.typography.uiBody,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
+
             )
             if (isBranch) {
                 Icon(

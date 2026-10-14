@@ -17,5 +17,9 @@ data class BookPart(
             BookPart(4, R.string.part_four, R.drawable.part4),
             BookPart(5, R.string.part_five, R.drawable.part5)
         )
+        @StringRes
+        fun titleResOf(partNumber: Int): Int =
+            defaultParts.firstOrNull { it.partNumber == partNumber }?.titleRes
+                ?: R.string.part_title
     }
 }
