@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.bookproject1.book_feature.data.local.entity.BookEntity
+import com.example.bookproject1.book_feature.data.local.entity.BookHighlightEntity
 import com.example.bookproject1.book_feature.data.local.entity.TocItemTuple
 import kotlinx.coroutines.flow.Flow
 
@@ -63,4 +64,13 @@ interface BookDao {
     ORDER BY orderIndex
 """)
     suspend fun getRange(partNumber: Int, startIndex: Int, endIndex: Int): List<BookEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHighlight(highlight: BookHighlightEntity)
+
+    @Query("SELECT * FROM favorite_highlights ORDER BY createdAt DESC")
+    fun getAllHighlights(): Flow<List<BookHighlightEntity>>
+
+    @Query("DELETE FROM favorite_highlights WHERE id = :id")
+    suspend fun deleteHighlight(id: Int)
 }

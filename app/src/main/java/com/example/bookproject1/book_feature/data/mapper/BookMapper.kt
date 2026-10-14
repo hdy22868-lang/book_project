@@ -19,27 +19,43 @@ fun BookTreeDto.toEntityList(partNumber:Int):List<BookEntity>{
         fTitle: String? = null,
         mName: String? = null,
         mTitle: String? = null
-    ){
-        sections?.forEach { section ->
-            // إذا اكو عنوان فرعي (مثل "نسبه:") ناخذه، وإذا ماكو نخليه null
-            val sub = if (section.subheading.isNullOrBlank()) null else section.subheading
+    ) {
+        var pendingSubheading: String? = null
 
-            section.paragraphs.forEach { paragraphText ->
-                entities.add(
-                    BookEntity(
-                        partNumber = partNumber,
-                        orderIndex = globalIndex++,
-                        mainSectionName = mainName,
-                        mainSectionTitle = mainTitle,
-                        faslName = fName,
-                        faslTitle = fTitle,
-                        mabhathName = mName,
-                        mabhathTitle = mTitle,
-                        subheading = sub,
-                        contentText = paragraphText,
-                        searchText = ArabicNormalizer.normalize(paragraphText)
+        sections?.forEach { section ->
+            val sub = section.subheading?.trim()?.takeIf { it.isNotEmpty() }
+            val rawParagraphs = section.paragraphs.filter { it.isNotBlank() }
+
+            if (rawParagraphs.isEmpty()) {
+                // إذا الفقرات فارغة وبس اكو عنوان (مثل "نسبه وحياته:") نحفظه للقسم القادم
+                if (sub != null) pendingSubheading = sub
+            } else {
+                val effectiveSubheading = pendingSubheading ?: sub
+                // إذا القسم السابق كان عنوان فقط وهذا القسم بداخله أول فقرة مدموجة بالعنوان
+                val effectiveParagraphs = if (pendingSubheading != null && sub != null && sub != pendingSubheading) {
+                    listOf(sub) + rawParagraphs
+                } else {
+                    rawParagraphs
+                }
+                pendingSubheading = null
+
+                effectiveParagraphs.forEach { paragraphText ->
+                    entities.add(
+                        BookEntity(
+                            partNumber = partNumber,
+                            orderIndex = globalIndex++,
+                            mainSectionName = mainName,
+                            mainSectionTitle = mainTitle,
+                            faslName = fName,
+                            faslTitle = fTitle,
+                            mabhathName = mName,
+                            mabhathTitle = mTitle,
+                            subheading = effectiveSubheading,
+                            contentText = paragraphText,
+                            searchText = ArabicNormalizer.normalize(paragraphText)
+                        )
                     )
-                )
+                }
             }
         }
     }

@@ -5,9 +5,10 @@ import androidx.room.RoomDatabase
 import com.example.bookproject1.book_feature.data.local.dao.BookDao
 import com.example.bookproject1.book_feature.data.local.entity.BookEntity
 import com.example.bookproject1.book_feature.data.local.entity.BookFtsEntity
+import com.example.bookproject1.book_feature.data.local.entity.BookHighlightEntity
 
-@Database(entities = [BookEntity::class, BookFtsEntity::class],
-    version = 2,
+@Database(entities = [BookEntity::class, BookFtsEntity::class, BookHighlightEntity::class],
+    version = 4,
     exportSchema = true)
 abstract class BookDatabase : RoomDatabase() {
 

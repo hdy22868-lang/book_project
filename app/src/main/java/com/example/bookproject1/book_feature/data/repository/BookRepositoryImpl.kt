@@ -11,17 +11,14 @@ import com.example.bookproject1.book_feature.domain.model.TocNode
 import com.example.bookproject1.book_feature.domain.repository.BookRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class BookRepositoryImpl(
     private val bookDao: BookDao,
-    private val context: Context, // نحتاجه حتى نوصل لمجلد assets ونقرأ الملف
-    private val gson: Gson        // مكتبة تحويل النصوص إلى كلاسات
+    private val context: Context,
+    private val gson: Gson
 ) : BookRepository {
 
     private val seedMutex = Mutex()
@@ -31,7 +28,7 @@ class BookRepositoryImpl(
             if (bookDao.getParagraphCountForPart(partNumber) > 0) return@withLock
             val dto = context.assets.open("part${partNumber}_tree.json")
                 .bufferedReader()
-                .use { gson.fromJson(it, BookTreeDto::class.java) }  // بدون String وسيط
+                .use { gson.fromJson(it, BookTreeDto::class.java) }
             bookDao.insertParagraphs(dto.toEntityList(partNumber))
         }
     }
@@ -44,7 +41,6 @@ class BookRepositoryImpl(
             val babTitle = babRows.first().mainSectionTitle
             val faslRows = babRows.filter { it.faslName != null }
 
-            // المقدمتين وسيرة الإمام: ورقة تُقرأ مباشرة
             if (faslRows.isEmpty()) {
                 tree.add(
                     TocNode.Leaf(
@@ -58,7 +54,6 @@ class BookRepositoryImpl(
 
             val babChildren = mutableListOf<TocNode>()
 
-            // نص الباب المباشر (الدعاء نفسه) إن وجد
             babRows.filter { it.faslName == null }.forEach { row ->
                 babChildren.add(
                     TocNode.Leaf(
@@ -76,7 +71,6 @@ class BookRepositoryImpl(
                 val directRow = rows.firstOrNull { it.mabhathName == null }
 
                 if (mabhathRows.isEmpty()) {
-                    // فصل بدون مباحث: ورقة
                     babChildren.add(
                         TocNode.Leaf(
                             title = faslLabel,
@@ -86,7 +80,6 @@ class BookRepositoryImpl(
                     )
                 } else {
                     val children = mutableListOf<TocNode>()
-                    // نص الفصل المباشر (قبل المباحث) حتى ما يضيع
                     if (directRow != null) {
                         children.add(
                             TocNode.Leaf(
@@ -113,33 +106,6 @@ class BookRepositoryImpl(
         }
 
         return tree
-    }
-
-    override fun getBabContent(partNumber: Int, babName: String): Flow<List<BookParagraph>> {
-        return bookDao.getBabContent(partNumber, babName)
-            .map { list -> list.map { it.toDomainModel() } }
-            .flowOn(Dispatchers.Default)
-    }
-
-    override fun getFaslContent(
-        partNumber: Int,
-        babName: String,
-        faslName: String
-    ): Flow<List<BookParagraph>> {
-        return bookDao.getFaslContent(partNumber, babName, faslName)
-            .map { list -> list.map { it.toDomainModel() } }
-            .flowOn(Dispatchers.Default)
-    }
-
-    override fun getMabhathContent(
-        partNumber: Int,
-        babName: String,
-        faslName: String,
-        mabhathName: String
-    ): Flow<List<BookParagraph>> {
-        return bookDao.getMabhathContent(partNumber, babName, faslName, mabhathName)
-            .map { list -> list.map { it.toDomainModel() } }
-            .flowOn(Dispatchers.Default)
     }
 
     override suspend fun searchBook(query: String): List<BookParagraph> {

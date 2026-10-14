@@ -6,6 +6,7 @@ import com.example.bookproject1.book_feature.data.repository.BookRepositoryImpl
 import com.example.bookproject1.book_feature.domain.repository.BookRepository
 import com.example.bookproject1.book_feature.presentation.booktoc.logic.BookTocViewModel
 import com.example.bookproject1.book_feature.presentation.home.logic.HomeViewModel
+import com.example.bookproject1.book_feature.presentation.reading.logic.BookReadingViewModel
 import com.google.gson.Gson
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -39,4 +40,5 @@ val bookModule = module {
 
     viewModelOf(::HomeViewModel)
     viewModelOf(::BookTocViewModel)
+    viewModelOf(::BookReadingViewModel)
 }
