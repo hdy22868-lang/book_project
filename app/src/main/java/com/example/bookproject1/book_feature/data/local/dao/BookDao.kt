@@ -12,42 +12,19 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface BookDao {
 
-    // إدخال نصوص الكتاب (سنستخدمها مرة واحدة عند حقن الـ JSON لأول مرة)
+    // 1. إدخال نصوص الكتاب عند شحن الـ JSON لأول مرة
     @Insert
     suspend fun insertParagraphs(paragraphs: List<BookEntity>)
 
-    // جلب جزء كامل من الكتاب مرتباً حسب التسلسل لعرضه
-    @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber ORDER BY orderIndex ASC")
-    fun getBookPart(partNumber: Int): Flow<List<BookEntity>>
-
-    // بحث سريع عبر جدول الـ FTS
-    @Query("""
-    SELECT * FROM book_paragraphs
-    WHERE id IN (
-        SELECT rowid FROM book_paragraphs_fts
-        WHERE book_paragraphs_fts MATCH :ftsQuery
-    )
-    ORDER BY partNumber, orderIndex
-    LIMIT :limit
-""")
-    suspend fun search(ftsQuery: String, limit: Int): List<BookEntity>
-
-    // فحص ما إذا كان الجزء موجود مسبقاً لمنع قراءة الـ JSON مرتين
+    // 2. فحص ما إذا كان الجزء موجوداً مسبقاً لمنع التكرار
     @Query("SELECT COUNT(*) FROM book_paragraphs WHERE partNumber = :partNumber")
     suspend fun getParagraphCountForPart(partNumber: Int): Int
 
-    // جلب محتوى "باب" كامل بكل فصوله ومباحثه
-    @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber AND mainSectionName = :babName ORDER BY orderIndex ASC")
-    fun getBabContent(partNumber: Int, babName: String): Flow<List<BookEntity>>
+    // 3. جلب نصوص جزء كامل مرتبة بالتسلسل
+    @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber ORDER BY orderIndex ASC")
+    fun getBookPart(partNumber: Int): Flow<List<BookEntity>>
 
-    // جلب محتوى "فصل" محدد داخل باب معين
-    @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber AND mainSectionName = :babName AND faslName = :faslName ORDER BY orderIndex ASC")
-    fun getFaslContent(partNumber: Int, babName: String, faslName: String): Flow<List<BookEntity>>
-
-    // جلب محتوى "مبحث" محدد جداً
-    @Query("SELECT * FROM book_paragraphs WHERE partNumber = :partNumber AND mainSectionName = :babName AND faslName = :faslName AND mabhathName = :mabhathName ORDER BY orderIndex ASC")
-    fun getMabhathContent(partNumber: Int, babName: String, faslName: String, mabhathName: String): Flow<List<BookEntity>>
-
+    // 4. جلب فهرس العناوين (الأبواب، الفصول، المباحث) مع إحداثيات البداية والنهاية
     @Query("""
     SELECT mainSectionName, mainSectionTitle, faslName, faslTitle, mabhathName, mabhathTitle,
            MIN(orderIndex) AS startIndex, MAX(orderIndex) AS endIndex
@@ -58,6 +35,7 @@ interface BookDao {
 """)
     suspend fun getTableOfContents(partNumber: Int): List<TocItemTuple>
 
+    // 5. جلب نصوص أي قسم/مبحث/فصل بدقة متناهية حسب تسلسل البداية والنهاية
     @Query("""
     SELECT * FROM book_paragraphs
     WHERE partNumber = :partNumber AND orderIndex BETWEEN :startIndex AND :endIndex
@@ -65,6 +43,24 @@ interface BookDao {
 """)
     suspend fun getRange(partNumber: Int, startIndex: Int, endIndex: Int): List<BookEntity>
 
+    // 6. بحث سريع ودقيق عبر جدول FTS مع دعم الفلترة برقم الجزء
+    @Query("""
+    SELECT * FROM book_paragraphs
+    WHERE (:partNumber IS NULL OR partNumber = :partNumber)
+      AND id IN (
+        SELECT rowid FROM book_paragraphs_fts
+        WHERE book_paragraphs_fts MATCH :ftsQuery
+    )
+    ORDER BY partNumber ASC, orderIndex ASC
+    LIMIT :limit
+""")
+    suspend fun search(
+        ftsQuery: String,
+        partNumber: Int? = null,
+        limit: Int = 300
+    ): List<BookEntity>
+
+    // 7. إدارة التظليلات والمفضلة
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHighlight(highlight: BookHighlightEntity)
 

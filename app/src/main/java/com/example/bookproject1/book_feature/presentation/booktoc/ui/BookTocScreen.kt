@@ -133,7 +133,7 @@ private fun BookTocContent(
                         }
                         LazyColumn(
                             contentPadding = PaddingValues(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
                             items(rows, key = { it.node.id }) { row ->

@@ -23,11 +23,17 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.bookproject1.R
+import com.example.bookproject1.book_feature.presentation.component.ui.BottomBar
+import com.example.bookproject1.book_feature.presentation.component.ui.BottomTab
 import com.example.bookproject1.book_feature.presentation.home.logic.HomeUiState
 import com.example.bookproject1.book_feature.presentation.home.logic.HomeViewModel
 
@@ -36,6 +42,8 @@ import com.example.bookproject1.book_feature.presentation.home.logic.HomeViewMod
 fun HomeScreen(
     viewModel: HomeViewModel,
     onPartClick: (Int) -> Unit,
+    onSettingsClick: () -> Unit = {},
+    onSearchClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -44,6 +52,8 @@ fun HomeScreen(
         uiState = uiState,
         onToggleLayout = viewModel::toggleLayout,
         onPartClick = onPartClick,
+        onSettingsClick = onSettingsClick,
+        onSearchClick = onSearchClick,
         modifier = modifier
     )
 }
@@ -54,8 +64,11 @@ fun HomeScreenContent(
     uiState: HomeUiState,
     onToggleLayout: () -> Unit,
     onPartClick: (Int) -> Unit,
+    onSearchClick: () -> Unit,
+    onSettingsClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    var selectedTab by remember { mutableStateOf(BottomTab.HOME) }
         Scaffold(
             modifier = modifier.fillMaxSize(),
             topBar = {
@@ -64,7 +77,8 @@ fun HomeScreenContent(
                         Text(
                             text = stringResource(id = R.string.home_title),
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
                         )
                     },
                     actions = {
@@ -84,6 +98,19 @@ fun HomeScreenContent(
                         containerColor = MaterialTheme.colorScheme.background,
                         titleContentColor = MaterialTheme.colorScheme.onBackground
                     )
+                )
+            },
+            bottomBar = {
+                BottomBar(
+                    currentTab = selectedTab,
+                    onTabSelected = { tab ->
+                        selectedTab = tab
+                        when (tab) {
+                            BottomTab.SEARCH -> onSearchClick()
+                            BottomTab.SETTINGS -> onSettingsClick() // 👈 الانتقال للإعدادات
+                            BottomTab.HOME -> {}
+                        }
+                    }
                 )
             },
             containerColor = MaterialTheme.colorScheme.background
@@ -122,5 +149,4 @@ fun HomeScreenContent(
                 }
             }
         }
-
 }

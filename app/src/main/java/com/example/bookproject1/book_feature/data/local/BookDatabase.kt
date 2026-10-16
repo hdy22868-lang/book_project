@@ -8,7 +8,7 @@ import com.example.bookproject1.book_feature.data.local.entity.BookFtsEntity
 import com.example.bookproject1.book_feature.data.local.entity.BookHighlightEntity
 
 @Database(entities = [BookEntity::class, BookFtsEntity::class, BookHighlightEntity::class],
-    version = 4,
+    version = 8,
     exportSchema = true)
 abstract class BookDatabase : RoomDatabase() {
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">bookproject1</string>
+    <string name="app_name">كتاب المصابيح</string>
     <string name="part_one">الجزء الأول</string>
     <string name="part_two">الجزء الثاني</string>
     <string name="part_three">الجزء الثالث</string>
@@ -17,4 +17,6 @@
     <string name="line_distance">تباعد الأسطر: %1$s</string>
     <string name="line_distence">تباعد الكلمات: %1$s</string>
     <string name="cant_reload">تعذّر تحميل النص</string>
+    <string name="write">"اكتب كلمة أو عبارة للبحث "</string>
+    <string name="no_match">لم يتم العثور على نتائج تطابق «%1$s»</string>
 </resources>

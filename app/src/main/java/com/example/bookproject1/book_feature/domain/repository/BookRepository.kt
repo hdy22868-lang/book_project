@@ -9,7 +9,7 @@ interface BookRepository {
 
     suspend fun getTablOfContents(partNumber: Int): List<TocNode>
 
-    suspend fun searchBook(query: String): List<BookParagraph>
+    suspend fun searchBook(query: String, partNumber: Int? = null): List<BookParagraph>
 
     suspend fun getSectionContent(partNumber: Int, startIndex: Int, endIndex: Int): List<BookParagraph>
 }

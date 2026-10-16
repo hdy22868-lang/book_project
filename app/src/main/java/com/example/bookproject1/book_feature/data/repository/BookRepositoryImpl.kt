@@ -108,9 +108,9 @@ class BookRepositoryImpl(
         return tree
     }
 
-    override suspend fun searchBook(query: String): List<BookParagraph> {
+    override suspend fun searchBook(query: String, partNumber: Int?): List<BookParagraph> {
         val ftsQuery = buildFtsQuery(query) ?: return emptyList()
-        return bookDao.search(ftsQuery, limit = 50).map { it.toDomainModel() }
+        return bookDao.search(ftsQuery, partNumber = partNumber, limit = 300).map { it.toDomainModel() }
     }
 
     override suspend fun getSectionContent(

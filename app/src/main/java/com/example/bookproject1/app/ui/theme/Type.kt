@@ -59,7 +59,5 @@ val AppTypography = Typography(
 val Typography.uiBody: TextStyle
     get() = bodyLarge.copy(
         fontFamily = UiFontFamily,
-        fontWeight = FontWeight.Medium,
-        fontSize = 18.sp,
-        lineHeight = 30.sp
+        fontWeight = FontWeight.Bold
     )
