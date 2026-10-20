@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,7 +56,7 @@ fun SearchResultCard(
         ).joinToString(" › ")
     }
 
-    // اقتطاع ذكي يركز على مكان الكلمة المبحوث عنها ويظللها بالأصفر
+    // اقتطاع ذكي يركز على مكان الكلمة المبحوث عنها وتظليل حروفها بدقة مع الحفاظ على كمال ونهاية الحروف الأخيرة (مثل كأس اللام)
     val highlightedSnippet = remember(paragraph.contentText, searchQuery) {
         buildSmartSnippet(
             fullText = paragraph.contentText,
@@ -95,7 +94,6 @@ fun SearchResultCard(
                     Text(
                         text = partName,
                         fontFamily = UiFontFamily,
-                        fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
                         color = BottomBarGold
                     )
@@ -122,7 +120,6 @@ fun SearchResultCard(
                 Text(
                     text = paragraph.subheading,
                     fontFamily = UiFontFamily,
-                    fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -130,7 +127,7 @@ fun SearchResultCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // مقتطف النص الذكي الذي يظهر الكلمات المبحوث عنها مباشرة ومظللة بالأصفر
+            // مقتطف النص مع الهايلايت المضبوط
             Text(
                 text = highlightedSnippet,
                 style = MaterialTheme.typography.bodyMedium,
@@ -144,7 +141,69 @@ fun SearchResultCard(
     }
 }
 
-// أداة تنظيف الحروف العربية ومطابقة الهمزات والحركات
+// محرف الوصل الصفري في المعيار القياسي لليونيكود (Zero-Width Joiner) لفرض اتصال الحرف العربي
+private const val ZWJ = "\u200D"
+
+// الحروف العربية التي لا تتصل بما بعدها (حروف الانفصال)
+private val NON_CONNECTING_TO_NEXT = setOf('أ', 'إ', 'آ', 'ا', 'ٱ', 'د', 'ذ', 'ر', 'ز', 'و', 'ؤ', 'ء', 'ة')
+
+// حركات التشكيل العربية
+private val DIACRITICS = setOf('ً', 'ٌ', 'ٍ', 'َ', 'ُ', 'ِ', 'ّ', 'ْ', 'ٓ', 'ٔ')
+
+private fun isDiacritic(c: Char): Boolean =
+    c in DIACRITICS || (c in '\u064B'..'\u065F') || c == '\u0670' || c == '\u0640'
+
+private fun isArabicLetter(c: Char): Boolean =
+    c in '\u0600'..'\u06FF' && !isDiacritic(c)
+
+private fun connectsToNext(ch: Char?): Boolean =
+    ch != null && ch !in NON_CONNECTING_TO_NEXT && isArabicLetter(ch)
+
+private fun connectsToPrev(ch: Char?): Boolean =
+    ch != null && ch != 'ء' && isArabicLetter(ch)
+
+// فحص هل يتصل الطرف الأيمن للمطابقة بالحرف المباشر السابق له داخل نفس الكلمة (بدون مسافات أو فواصل)
+private fun shouldConnectLeft(text: String, start: Int): Boolean {
+    if (start <= 0) return false
+    var idx = start - 1
+    while (idx >= 0 && isDiacritic(text[idx])) {
+        idx--
+    }
+    if (idx < 0 || !isArabicLetter(text[idx])) return false
+    val prevChar = text[idx]
+
+    var idxM = start
+    while (idxM < text.length && isDiacritic(text[idxM])) {
+        idxM++
+    }
+    if (idxM >= text.length || !isArabicLetter(text[idxM])) return false
+    val firstMatchChar = text[idxM]
+
+    return connectsToNext(prevChar) && connectsToPrev(firstMatchChar)
+}
+
+// فحص هل يتصل الطرف الأيسر للمطابقة بالحرف المباشر اللاحق له داخل نفس الكلمة
+// إذا انتهت الكلمة وجاء بعدها مسافة أو فاصل، لا نوصل حتى يرسم الخط الحرف الأخير كاملاً (مثل نزول قوس اللام)
+private fun shouldConnectRight(text: String, end: Int): Boolean {
+    if (end >= text.length) return false
+    var idx = end
+    while (idx < text.length && isDiacritic(text[idx])) {
+        idx++
+    }
+    if (idx >= text.length || !isArabicLetter(text[idx])) return false
+    val nextChar = text[idx]
+
+    var idxM = end - 1
+    while (idxM >= 0 && isDiacritic(text[idxM])) {
+        idxM--
+    }
+    if (idxM < 0 || !isArabicLetter(text[idxM])) return false
+    val lastMatchChar = text[idxM]
+
+    return connectsToNext(lastMatchChar) && connectsToPrev(nextChar)
+}
+
+// أداة تنظيف الحروف العربية ومطابقة الهمزات
 private val diacriticsRegex = Regex("[\\u064B-\\u065F\\u0670\\u0640]")
 
 private fun normalizeArabic(text: String): String {
@@ -154,13 +213,13 @@ private fun normalizeArabic(text: String): String {
 }
 
 /**
- * دالة ذكية لاقتطاع المقطع المحيط مباشرة بالكلمات المبحوث عنها وتظليلها باللون الأصفر
+ * دالة ذكية لاقتطاع المقطع المحيط بكلمات البحث وتظليل الحروف المبحوثة فقط
+ * مع الحفاظ التام على اتصال الحروف داخل الكلمة الواحدة وحفظ شكل الحروف الأخيرة ككأس اللام عند نهاية الكلمة
  */
 fun buildSmartSnippet(fullText: String, rawQuery: String): AnnotatedString {
     val cleanQuery = rawQuery.trim()
     if (cleanQuery.isBlank()) return AnnotatedString(fullText.take(180))
 
-    // 1. استخراج كلمات البحث وتوسيع مرادفاتها الإملائية (مثل: أبو / أبي / أبا)
     val queryWords = cleanQuery.split(Regex("[^\\p{L}\\p{N}]+"))
         .filter { it.length >= 2 }
         .map { normalizeArabic(it) }
@@ -175,7 +234,6 @@ fun buildSmartSnippet(fullText: String, rawQuery: String): AnnotatedString {
         }
     }
 
-    // 2. مطابقة النص الأصلي مع النص المجرّد لمعرفة إحداثيات الحروف بدقة
     val normToOrig = ArrayList<Int>(fullText.length)
     val normTextBuilder = StringBuilder(fullText.length)
 
@@ -189,7 +247,6 @@ fun buildSmartSnippet(fullText: String, rawQuery: String): AnnotatedString {
     }
     val normText = normTextBuilder.toString()
 
-    // 3. البحث عن أفضل مكان تتواجد فيه كلمات البحث
     var bestMatchNormIndex = -1
     for (kw in expandedKeywords) {
         val idx = normText.indexOf(kw)
@@ -200,7 +257,6 @@ fun buildSmartSnippet(fullText: String, rawQuery: String): AnnotatedString {
         }
     }
 
-    // فحص خاص إذا وُجدت كلمتان معاً (مثل: دعاء + حمزة) لضبط النافذة حولهما بدقة
     val pDua = normText.indexOf("دعاء")
     val pHamza = normText.indexOf("حمزه")
     if (pDua != -1 && pHamza != -1) {
@@ -211,7 +267,6 @@ fun buildSmartSnippet(fullText: String, rawQuery: String): AnnotatedString {
         normToOrig[bestMatchNormIndex]
     } else 0
 
-    // 4. اقتطاع نافذة محيطة بالكلمات المبحوث عنها (~180 حرف) بمحاذاة حدود الكلمات
     var windowStart = maxOf(0, bestOrigIndex - 40)
     if (windowStart > 0) {
         val nextSpace = fullText.indexOf(' ', windowStart)
@@ -232,7 +287,6 @@ fun buildSmartSnippet(fullText: String, rawQuery: String): AnnotatedString {
     val suffix = if (windowEnd < fullText.length) " …" else ""
     val snippet = prefix + fullText.substring(windowStart, windowEnd) + suffix
 
-    // 5. تظليل الكلمات داخل المقتطف باللون الأصفر الفاتح والخلفية المظللة
     val snippetNormToOrig = ArrayList<Int>(snippet.length)
     val snippetNormBuilder = StringBuilder(snippet.length)
     for (i in snippet.indices) {
@@ -245,36 +299,94 @@ fun buildSmartSnippet(fullText: String, rawQuery: String): AnnotatedString {
     }
     val snippetNorm = snippetNormBuilder.toString()
 
-    return buildAnnotatedString {
-        append(snippet)
-        for (kw in expandedKeywords) {
-            var startIndex = 0
-            while (startIndex < snippetNorm.length) {
-                val matchIdx = snippetNorm.indexOf(kw, startIndex)
-                if (matchIdx == -1) break
+    val rawMatches = mutableListOf<Pair<Int, Int>>()
+    for (kw in expandedKeywords) {
+        var startIndex = 0
+        while (startIndex < snippetNorm.length) {
+            val matchIdx = snippetNorm.indexOf(kw, startIndex)
+            if (matchIdx == -1) break
 
-                val matchEndNorm = matchIdx + kw.length
-                if (matchIdx < snippetNormToOrig.size && (matchEndNorm - 1) < snippetNormToOrig.size) {
-                    val origStart = snippetNormToOrig[matchIdx]
-                    val origEnd = snippetNormToOrig[matchEndNorm - 1] + 1
-                    addStyle(
-                        style = SpanStyle(
-                            color = BottomBarGold,
-                            background = BottomBarGold.copy(alpha = 0.25f),
-                            fontWeight = FontWeight.Bold
-                        ),
-                        start = origStart,
-                        end = origEnd
-                    )
+            val matchEndNorm = matchIdx + kw.length
+            if (matchIdx < snippetNormToOrig.size && (matchEndNorm - 1) < snippetNormToOrig.size) {
+                val origStart = snippetNormToOrig[matchIdx]
+                var origEnd = snippetNormToOrig[matchEndNorm - 1] + 1
+                while (origEnd < snippet.length && isDiacritic(snippet[origEnd])) {
+                    origEnd++
                 }
-                startIndex = matchIdx + kw.length
+                rawMatches.add(origStart to origEnd)
             }
+            startIndex = matchIdx + kw.length
+        }
+    }
+
+    val sortedMatches = rawMatches.sortedBy { it.first }
+    val mergedMatches = mutableListOf<Pair<Int, Int>>()
+    for (m in sortedMatches) {
+        if (mergedMatches.isEmpty()) {
+            mergedMatches.add(m)
+        } else {
+            val last = mergedMatches.last()
+            if (m.first <= last.second) {
+                mergedMatches[mergedMatches.size - 1] = last.first to maxOf(last.second, m.second)
+            } else {
+                mergedMatches.add(m)
+            }
+        }
+    }
+
+    return buildAnnotatedString {
+        var lastIdx = 0
+        for ((start, end) in mergedMatches) {
+            val connectLeft = shouldConnectLeft(snippet, start)
+            val connectRight = shouldConnectRight(snippet, end)
+
+            if (start > lastIdx) {
+                var preText = snippet.substring(lastIdx, start)
+                if (lastIdx > 0 && shouldConnectRight(snippet, lastIdx)) {
+                    preText = ZWJ + preText
+                }
+                if (connectLeft) {
+                    preText += ZWJ
+                }
+                append(preText)
+            }
+
+            var mText = snippet.substring(start, end)
+            if (connectLeft) {
+                mText = ZWJ + mText
+            }
+            if (connectRight) {
+                mText = mText + ZWJ
+            }
+
+            val highlightStart = length
+            append(mText)
+            val highlightEnd = length
+
+            addStyle(
+                style = SpanStyle(
+                    color = BottomBarGold,
+                    background = BottomBarGold.copy(alpha = 0.28f)
+                ),
+                start = highlightStart,
+                end = highlightEnd
+            )
+
+            lastIdx = end
+        }
+
+        if (lastIdx < snippet.length) {
+            var postText = snippet.substring(lastIdx)
+            if (lastIdx > 0 && shouldConnectRight(snippet, lastIdx)) {
+                postText = ZWJ + postText
+            }
+            append(postText)
         }
     }
 }
 
 /**
- * دالة إضافية لتظليل الكلمات المبحوث عنها داخل شاشة القراءة نفسها (ReadingScreen)
+ * دالة لتظليل الحروف المبحوث عنها داخل شاشة القراءة (ReadingScreen) دون كسر الحروف الأخيرة
  */
 fun highlightFullText(fullText: String, rawQuery: String?): AnnotatedString {
     if (rawQuery.isNullOrBlank()) return AnnotatedString(fullText)
@@ -305,30 +417,88 @@ fun highlightFullText(fullText: String, rawQuery: String?): AnnotatedString {
     }
     val normText = normTextBuilder.toString()
 
-    return buildAnnotatedString {
-        append(fullText)
-        for (kw in expandedKeywords) {
-            var startIndex = 0
-            while (startIndex < normText.length) {
-                val matchIdx = normText.indexOf(kw, startIndex)
-                if (matchIdx == -1) break
+    val rawMatches = mutableListOf<Pair<Int, Int>>()
+    for (kw in expandedKeywords) {
+        var startIndex = 0
+        while (startIndex < normText.length) {
+            val matchIdx = normText.indexOf(kw, startIndex)
+            if (matchIdx == -1) break
 
-                val matchEndNorm = matchIdx + kw.length
-                if (matchIdx < normToOrig.size && (matchEndNorm - 1) < normToOrig.size) {
-                    val origStart = normToOrig[matchIdx]
-                    val origEnd = normToOrig[matchEndNorm - 1] + 1
-                    addStyle(
-                        style = SpanStyle(
-                            color = BottomBarGold,
-                            background = BottomBarGold.copy(alpha = 0.25f),
-                            fontWeight = FontWeight.Bold
-                        ),
-                        start = origStart,
-                        end = origEnd
-                    )
+            val matchEndNorm = matchIdx + kw.length
+            if (matchIdx < normToOrig.size && (matchEndNorm - 1) < normToOrig.size) {
+                val origStart = normToOrig[matchIdx]
+                var origEnd = normToOrig[matchEndNorm - 1] + 1
+                while (origEnd < fullText.length && isDiacritic(fullText[origEnd])) {
+                    origEnd++
                 }
-                startIndex = matchIdx + kw.length
+                rawMatches.add(origStart to origEnd)
             }
+            startIndex = matchIdx + kw.length
+        }
+    }
+
+    val sortedMatches = rawMatches.sortedBy { it.first }
+    val mergedMatches = mutableListOf<Pair<Int, Int>>()
+    for (m in sortedMatches) {
+        if (mergedMatches.isEmpty()) {
+            mergedMatches.add(m)
+        } else {
+            val last = mergedMatches.last()
+            if (m.first <= last.second) {
+                mergedMatches[mergedMatches.size - 1] = last.first to maxOf(last.second, m.second)
+            } else {
+                mergedMatches.add(m)
+            }
+        }
+    }
+
+    return buildAnnotatedString {
+        var lastIdx = 0
+        for ((start, end) in mergedMatches) {
+            val connectLeft = shouldConnectLeft(fullText, start)
+            val connectRight = shouldConnectRight(fullText, end)
+
+            if (start > lastIdx) {
+                var preText = fullText.substring(lastIdx, start)
+                if (lastIdx > 0 && shouldConnectRight(fullText, lastIdx)) {
+                    preText = ZWJ + preText
+                }
+                if (connectLeft) {
+                    preText += ZWJ
+                }
+                append(preText)
+            }
+
+            var mText = fullText.substring(start, end)
+            if (connectLeft) {
+                mText = ZWJ + mText
+            }
+            if (connectRight) {
+                mText = mText + ZWJ
+            }
+
+            val highlightStart = length
+            append(mText)
+            val highlightEnd = length
+
+            addStyle(
+                style = SpanStyle(
+                    color = BottomBarGold,
+                    background = BottomBarGold.copy(alpha = 0.28f)
+                ),
+                start = highlightStart,
+                end = highlightEnd
+            )
+
+            lastIdx = end
+        }
+
+        if (lastIdx < fullText.length) {
+            var postText = fullText.substring(lastIdx)
+            if (lastIdx > 0 && shouldConnectRight(fullText, lastIdx)) {
+                postText = ZWJ + postText
+            }
+            append(postText)
         }
     }
 }

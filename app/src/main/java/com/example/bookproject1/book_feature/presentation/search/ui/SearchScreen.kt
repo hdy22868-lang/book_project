@@ -1,6 +1,7 @@
 package com.example.bookproject1.book_feature.presentation.search.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,11 +41,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -76,7 +84,7 @@ fun SearchScreen(
         onAction = viewModel::onAction,
         onNavigateBack = onNavigateBack,
         onNavigateHome = onNavigateHome,
-        onNavigateSettings= onNavigateSettings,
+        onNavigateSettings = onNavigateSettings,
         onResultClick = onResultClick,
         modifier = modifier
     )
@@ -93,10 +101,29 @@ fun SearchContent(
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    val dismissKeyboard = {
+        focusManager.clearFocus()
+        keyboardController?.hide()
+    }
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (source == NestedScrollSource.UserInput) {
+                    dismissKeyboard()
+                }
+                return Offset.Zero
+            }
+        }
+    }
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
         Scaffold(
-            modifier = modifier.fillMaxSize(),
+            modifier = modifier
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection),
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 Column(
@@ -113,7 +140,10 @@ fun SearchContent(
                             .padding(horizontal = 14.dp)
                     ) {
                         IconButton(
-                            onClick = onNavigateBack,
+                            onClick = {
+                                dismissKeyboard()
+                                onNavigateBack()
+                            },
                             modifier = Modifier.size(42.dp)
                         ) {
                             Icon(
@@ -155,7 +185,7 @@ fun SearchContent(
                                 ) {
                                     if (uiState.query.isEmpty()) {
                                         Text(
-                                            text = "بحث ...",
+                                            text = "ابحث...",
                                             fontFamily = UiFontFamily,
                                             fontSize = 14.5.sp,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
@@ -175,7 +205,7 @@ fun SearchContent(
                                         cursorBrush = SolidColor(BottomBarGold),
                                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                                         keyboardActions = KeyboardActions(onSearch = {
-                                            focusManager.clearFocus()
+                                            dismissKeyboard()
                                             onAction(SearchAction.OnSearchSubmit)
                                         }),
                                         modifier = Modifier.fillMaxWidth()
@@ -211,7 +241,10 @@ fun SearchContent(
                     ) {
                         FilterChip(
                             selected = uiState.selectedPartFilter == null,
-                            onClick = { onAction(SearchAction.OnFilterPartSelect(null)) },
+                            onClick = {
+                                dismissKeyboard()
+                                onAction(SearchAction.OnFilterPartSelect(null))
+                            },
                             shape = RoundedCornerShape(10.dp),
                             label = {
                                 Text(
@@ -234,7 +267,10 @@ fun SearchContent(
                             val isPartSelected = uiState.selectedPartFilter == part
                             FilterChip(
                                 selected = isPartSelected,
-                                onClick = { onAction(SearchAction.OnFilterPartSelect(part)) },
+                                onClick = {
+                                    dismissKeyboard()
+                                    onAction(SearchAction.OnFilterPartSelect(part))
+                                },
                                 shape = RoundedCornerShape(10.dp),
                                 label = {
                                     Text(
@@ -256,14 +292,14 @@ fun SearchContent(
                     }
                 }
             },
-            // 👈 البوتوم بار المضاف
             bottomBar = {
                 BottomBar(
                     currentTab = BottomTab.SEARCH,
                     onTabSelected = { tab ->
+                        dismissKeyboard()
                         when (tab) {
                             BottomTab.HOME -> onNavigateHome()
-                            BottomTab.SETTINGS -> onNavigateSettings() // 👈 الانتقال للإعدادات
+                            BottomTab.SETTINGS -> onNavigateSettings()
                             BottomTab.SEARCH -> {}
                         }
                     }
@@ -274,6 +310,11 @@ fun SearchContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            dismissKeyboard()
+                        })
+                    }
             ) {
                 when {
                     uiState.isLoading -> {
@@ -297,8 +338,13 @@ fun SearchContent(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier
-                                .align(Alignment.Center)
+                                .fillMaxSize()
                                 .padding(32.dp)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(onTap = {
+                                        dismissKeyboard()
+                                    })
+                                }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Search,
@@ -308,7 +354,7 @@ fun SearchContent(
                             )
                             Spacer(modifier = Modifier.height(14.dp))
                             Text(
-                                text = "اكتب كلمة أو عبارة للبحث ",
+                                text = "اكتب كلمة أو عبارة للبحث",
                                 fontFamily = UiFontFamily,
                                 fontSize = 14.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
@@ -322,8 +368,13 @@ fun SearchContent(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier
-                                .align(Alignment.Center)
+                                .fillMaxSize()
                                 .padding(32.dp)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(onTap = {
+                                        dismissKeyboard()
+                                    })
+                                }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.SearchOff,
@@ -347,7 +398,13 @@ fun SearchContent(
                         LazyColumn(
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                             verticalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .pointerInput(Unit) {
+                                    detectTapGestures(onTap = {
+                                        dismissKeyboard()
+                                    })
+                                }
                         ) {
                             item {
                                 Text(
@@ -365,6 +422,7 @@ fun SearchContent(
                                     paragraph = result,
                                     searchQuery = uiState.query,
                                     onClick = {
+                                        dismissKeyboard()
                                         onResultClick(result.partNumber, result.orderIndex)
                                     }
                                 )

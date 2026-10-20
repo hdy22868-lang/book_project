@@ -17,6 +17,8 @@ import com.example.bookproject1.book_feature.presentation.booktoc.logic.BookTocV
 import com.example.bookproject1.book_feature.presentation.booktoc.ui.BookTocScreen
 import com.example.bookproject1.book_feature.presentation.home.logic.HomeViewModel
 import com.example.bookproject1.book_feature.presentation.home.ui.HomeScreen
+import com.example.bookproject1.book_feature.presentation.reading.logic.BookReadingViewModel
+import com.example.bookproject1.book_feature.presentation.reading.ui.BookReadingScreen
 import com.example.bookproject1.book_feature.presentation.search.logic.SearchViewModel
 import com.example.bookproject1.book_feature.presentation.search.ui.SearchScreen
 import com.example.bookproject1.book_feature.presentation.settings.logic.SettingsViewModel
@@ -69,6 +71,14 @@ fun AppNavigation() {
                             )
                         )
                     }
+                )
+            }
+            composable<BookReadingRoute> { backStackEntry ->
+                val route = backStackEntry.toRoute<BookReadingRoute>()
+                val viewModel = koinViewModel<BookReadingViewModel>()
+                BookReadingScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = { navController.navigateUp() }
                 )
             }
 
