@@ -119,7 +119,7 @@ fun BookReadingScreen(
                             selectedText = null
                             selectedParagraph = null
                         } else {
-                            Toast.makeText(context, "حدد نصاً بالمقابض أولاً ثم اختر اللون", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "حدد نصاً أولاً ثم اختر اللون", Toast.LENGTH_SHORT).show()
                         }
                     }
                 )

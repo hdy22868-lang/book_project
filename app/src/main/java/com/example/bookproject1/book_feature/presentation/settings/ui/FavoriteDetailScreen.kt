@@ -111,27 +111,6 @@ fun FavoriteDetailScreen(
                         actions = {
                             if (highlight != null) {
                                 IconButton(onClick = {
-                                    clipboardManager.setText(AnnotatedString(highlight.selectedText))
-                                    Toast.makeText(context, "تم نسخ النص إلى الحافظة", Toast.LENGTH_SHORT).show()
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.ContentCopy,
-                                        contentDescription = "نسخ",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-
-                                IconButton(onClick = {
-                                    shareText(context, highlight.selectedText)
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Share,
-                                        contentDescription = "مشاركة",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-
-                                IconButton(onClick = {
                                     viewModel.deleteHighlight(highlight.id)
                                     Toast.makeText(context, "تم حذف النص من المفضلة", Toast.LENGTH_SHORT).show()
                                     onNavigateBack()

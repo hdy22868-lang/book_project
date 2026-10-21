@@ -11,7 +11,5 @@ import com.example.bookproject1.book_feature.data.local.entity.BookHighlightEnti
     version = 8,
     exportSchema = true)
 abstract class BookDatabase : RoomDatabase() {
-
-    // هذا السطر يخلينا نكدر نوصل لدوال الـ DAO من خلال قاعدة البيانات
     abstract val bookDao: BookDao
 }

@@ -17,12 +17,10 @@ class ThemeDataStore(private val context: Context) {
         val KEY_IS_DARK_THEME = booleanPreferencesKey("is_dark_theme")
     }
 
-    // تدفق حالة الثيم: الافتراضي داكن (true)
     val isDarkThemeFlow: Flow<Boolean> = context.settingsDataStore.data.map { preferences ->
         preferences[KEY_IS_DARK_THEME] ?: true
     }
 
-    // حفظ اختيار المستخدم للثيم في الـ DataStore
     suspend fun setDarkTheme(isDark: Boolean) {
         context.settingsDataStore.edit { preferences ->
             preferences[KEY_IS_DARK_THEME] = isDark

@@ -1,6 +1,5 @@
-package com.example.bookproject1.book_feature.data.local.entity
+package com.example.bookproject1.book_feature.data.util
 
-// كلاس مساعد نستخدمه بس حتى نجلب أسماء العناوين من القاعدة
 data class TocItemTuple(
     val mainSectionName: String,
     val mainSectionTitle: String?,

@@ -27,11 +27,10 @@ fun BookTreeDto.toEntityList(partNumber:Int):List<BookEntity>{
             val rawParagraphs = section.paragraphs.filter { it.isNotBlank() }
 
             if (rawParagraphs.isEmpty()) {
-                // إذا الفقرات فارغة وبس اكو عنوان (مثل "نسبه وحياته:") نحفظه للقسم القادم
                 if (sub != null) pendingSubheading = sub
             } else {
                 val effectiveSubheading = pendingSubheading ?: sub
-                // إذا القسم السابق كان عنوان فقط وهذا القسم بداخله أول فقرة مدموجة بالعنوان
+
                 val effectiveParagraphs = if (pendingSubheading != null && sub != null && sub != pendingSubheading) {
                     listOf(sub) + rawParagraphs
                 } else {
@@ -66,9 +65,7 @@ fun BookTreeDto.toEntityList(partNumber:Int):List<BookEntity>{
         )
     }
 
-    // 2. استخراج الأبواب وما بداخلها
     this.babs?.forEach { bab ->
-        // نصوص الباب المباشرة (التي تأتي قبل الفصول إن وجدت)
         processSections(
             sections = bab.sections,
             mainName = bab.name,
