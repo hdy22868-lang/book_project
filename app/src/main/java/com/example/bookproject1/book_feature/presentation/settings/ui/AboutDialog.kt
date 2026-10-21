@@ -16,10 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bookproject1.R
 import com.example.bookproject1.app.ui.theme.UiFontFamily
 import com.example.bookproject1.book_feature.presentation.component.ui.BottomBarGold
 
@@ -32,7 +34,7 @@ fun AboutDialog(
             onDismissRequest = onDismiss,
             title = {
                 Text(
-                    text = "عن التطبيق",
+                    text = stringResource(R.string.about_dialog_title),
                     fontFamily = UiFontFamily,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -46,7 +48,7 @@ fun AboutDialog(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
-                        text = "تطبيق كتاب المصابيح",
+                        text = stringResource(R.string.about_app_name),
                         fontFamily = UiFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
@@ -54,7 +56,7 @@ fun AboutDialog(
                     )
 
                     Text(
-                        text = "يهدف التطبيق الى وضع نص كتاب المصابيح ( شرح ادعية مختارة من الصحيفة السجادية ودعاء ابي حمزة الثمالي) للامام زين العابدين بين يدي القارئ مع امكانية البحث وسهولة التصفح والمطالعة.",
+                        text = stringResource(R.string.about_app_description),
                         fontFamily = UiFontFamily,
                         fontSize = 13.5.sp,
                         lineHeight = 22.sp,
@@ -67,7 +69,7 @@ fun AboutDialog(
                     )
 
                     AboutSectionItem(
-                        title = "المراجعة اللغوية والتحقيق",
+                        title = stringResource(R.string.about_review_title),
                         names = listOf(
                             "رضوان عبدالهادي السلامي",
                             "صباح نعيم جاسم الصافي",
@@ -77,7 +79,7 @@ fun AboutDialog(
                     )
 
                     AboutSectionItem(
-                        title = "الجمع والتدوين",
+                        title = stringResource(R.string.about_collection_title),
                         names = listOf(
                             "حيدر فائق الهنداوي",
                             "محمد يوسف السعدي",
@@ -87,12 +89,12 @@ fun AboutDialog(
                     )
 
                     AboutSectionItem(
-                        title = "التصميم والإخراج",
+                        title = stringResource(R.string.about_design_title),
                         names = listOf("علي عبدالحليم المظفر")
                     )
 
                     AboutSectionItem(
-                        title = "تطوير وبرمجة",
+                        title = stringResource(R.string.about_development_title),
                         names = listOf("مركز قنطرة لتكنولوجيا المعلومات")
                     )
                 }
@@ -100,7 +102,7 @@ fun AboutDialog(
             confirmButton = {
                 TextButton(onClick = onDismiss) {
                     Text(
-                        text = "إغلاق",
+                        text = stringResource(R.string.close),
                         fontFamily = UiFontFamily,
                         fontWeight = FontWeight.Bold,
                         color = BottomBarGold
@@ -110,30 +112,5 @@ fun AboutDialog(
             shape = RoundedCornerShape(18.dp),
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
-    }
-}
-
-@Composable
-private fun AboutSectionItem(
-    title: String,
-    names: List<String>
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text(
-            text = title,
-            fontFamily = UiFontFamily,
-            fontWeight = FontWeight.Bold,
-            fontSize = 13.5.sp,
-            color = BottomBarGold
-        )
-        names.forEach { name ->
-            Text(
-                text = "• $name",
-                fontFamily = UiFontFamily,
-                fontSize = 12.5.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
-                modifier = Modifier.padding(start = 4.dp)
-            )
-        }
     }
 }

@@ -24,6 +24,7 @@ import com.example.bookproject1.R
 import com.example.bookproject1.app.ui.theme.AlMasabeehTheme
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
 import com.example.bookproject1.book_feature.presentation.reading.logic.BookReadingViewModel
+import com.example.bookproject1.book_feature.presentation.reading.logic.TextHighlight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +77,7 @@ fun BookReadingScreen(
                         IconButton(onClick = onNavigateBack) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back_button_desc)
+                                contentDescription = stringResource(R.string.back)
                             )
                         }
                     },

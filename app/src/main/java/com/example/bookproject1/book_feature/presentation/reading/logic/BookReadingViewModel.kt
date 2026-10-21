@@ -5,8 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.bookproject1.app.navigation.BookReadingRoute
-import com.example.bookproject1.book_feature.data.local.dao.BookDao
-import com.example.bookproject1.book_feature.data.local.entity.BookHighlightEntity
+import com.example.bookproject1.book_feature.domain.model.BookHighlight
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
 import com.example.bookproject1.book_feature.domain.repository.BookRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +16,7 @@ import kotlinx.coroutines.launch
 
 class BookReadingViewModel(
     savedStateHandle: SavedStateHandle,
-    private val repository: BookRepository,
-    private val bookDao: BookDao
+    private val repository: BookRepository
 ) : ViewModel() {
     private val route = savedStateHandle.toRoute<BookReadingRoute>()
     private val _uiState = MutableStateFlow(BookReadingUiState())
@@ -55,7 +53,6 @@ class BookReadingViewModel(
         }
     }
 
-
     private fun resolveTitle(list: List<BookParagraph>): String {
         val first = list.firstOrNull() ?: return ""
         return when {
@@ -67,11 +64,10 @@ class BookReadingViewModel(
         }
     }
 
-
     private fun resolveSubtitle(list: List<BookParagraph>): String? {
         val first = list.firstOrNull() ?: return null
         val parts = mutableListOf<String>()
-        if (!first.mainSectionName.isBlank() && first.mabhathName != null) {
+        if (first.mainSectionName.isNotBlank() && first.mabhathName != null) {
             parts.add(first.mainSectionName)
         }
         if (!first.faslName.isNullOrBlank() && first.mabhathName != null) {
@@ -80,28 +76,16 @@ class BookReadingViewModel(
         return if (parts.isNotEmpty()) parts.joinToString(" • ") else null
     }
 
-    fun saveHighlight(selectedText: String, paragraph: BookParagraph) {
-        viewModelScope.launch {
-            val highlight = BookHighlightEntity(
-                partNumber = paragraph.partNumber,
-                paragraphId = paragraph.id,
-                sectionTitle = _uiState.value.title,
-                selectedText = selectedText
-            )
-
-            bookDao.insertHighlight(highlight)
-        }
-    }
     fun saveHighlightWithColor(selectedText: String, paragraph: BookParagraph, colorHex: Long) {
         viewModelScope.launch {
-            val highlight = BookHighlightEntity(
+            val highlight = BookHighlight(
                 partNumber = paragraph.partNumber,
                 paragraphId = paragraph.id,
                 sectionTitle = _uiState.value.title,
                 selectedText = selectedText,
                 colorHex = colorHex
             )
-            bookDao.insertHighlight(highlight)
+            repository.saveHighlight(highlight)
         }
     }
 }

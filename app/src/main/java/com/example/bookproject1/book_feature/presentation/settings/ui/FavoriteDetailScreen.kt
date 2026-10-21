@@ -53,12 +53,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bookproject1.R
 import com.example.bookproject1.app.ui.theme.UiFontFamily
 import com.example.bookproject1.book_feature.presentation.component.ui.BottomBarGold
 import com.example.bookproject1.book_feature.presentation.settings.logic.SettingsViewModel
@@ -92,7 +94,7 @@ fun FavoriteDetailScreen(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                text = "النص المفضل",
+                                text = stringResource(R.string.favorite_detail_title),
                                 fontFamily = UiFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 19.sp,
@@ -103,7 +105,7 @@ fun FavoriteDetailScreen(
                             IconButton(onClick = onNavigateBack) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "رجوع",
+                                    contentDescription = stringResource(R.string.back),
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -117,7 +119,7 @@ fun FavoriteDetailScreen(
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.DeleteOutline,
-                                        contentDescription = "حذف",
+                                        contentDescription = stringResource(R.string.delete),
                                         tint = MaterialTheme.colorScheme.error
                                     )
                                 }
@@ -138,7 +140,7 @@ fun FavoriteDetailScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "تعذر العثور على النص المفضل.",
+                        text = stringResource(R.string.favorite_not_found),
                         fontFamily = UiFontFamily,
                         fontSize = 15.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -299,7 +301,7 @@ fun FavoriteDetailScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "نسخ النص",
+                                text = stringResource(R.string.copy),
                                 fontFamily = UiFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp
@@ -322,7 +324,7 @@ fun FavoriteDetailScreen(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "مشاركة",
+                                text = stringResource(R.string.share),
                                 fontFamily = UiFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp

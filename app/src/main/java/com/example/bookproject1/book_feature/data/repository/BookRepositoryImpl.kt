@@ -1,16 +1,22 @@
 package com.example.bookproject1.book_feature.data.repository
 
 import android.content.Context
+import com.example.bookproject1.R
+import com.example.bookproject1.book_feature.data.local.ThemeDataStore
 import com.example.bookproject1.book_feature.data.local.dao.BookDao
 import com.example.bookproject1.book_feature.data.mapper.toDomainModel
+import com.example.bookproject1.book_feature.data.mapper.toEntity
 import com.example.bookproject1.book_feature.data.mapper.toEntityList
 import com.example.bookproject1.book_feature.data.remote.dto.BookTreeDto
 import com.example.bookproject1.book_feature.data.util.ArabicNormalizer
+import com.example.bookproject1.book_feature.domain.model.BookHighlight
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
 import com.example.bookproject1.book_feature.domain.model.TocNode
 import com.example.bookproject1.book_feature.domain.repository.BookRepository
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -18,7 +24,8 @@ import kotlinx.coroutines.withContext
 class BookRepositoryImpl(
     private val bookDao: BookDao,
     private val context: Context,
-    private val gson: Gson
+    private val gson: Gson,
+    private val themeDataStore: ThemeDataStore
 ) : BookRepository {
 
     private val seedMutex = Mutex()
@@ -117,6 +124,23 @@ class BookRepositoryImpl(
         partNumber: Int, startIndex: Int, endIndex: Int
     ): List<BookParagraph> = withContext(Dispatchers.Default) {
         bookDao.getRange(partNumber, startIndex, endIndex).map { it.toDomainModel() }
+    }
+
+    override val isDarkThemeFlow: Flow<Boolean> = themeDataStore.isDarkThemeFlow
+
+    override suspend fun setDarkTheme(isDark: Boolean) {
+        themeDataStore.setDarkTheme(isDark)
+    }
+
+    override fun getAllHighlights(): Flow<List<BookHighlight>> =
+        bookDao.getAllHighlights().map { list -> list.map { it.toDomainModel() } }
+
+    override suspend fun saveHighlight(highlight: BookHighlight) {
+        bookDao.insertHighlight(highlight.toEntity())
+    }
+
+    override suspend fun deleteHighlight(id: Int) {
+        bookDao.deleteHighlight(id)
     }
 
     private fun tocLabel(name: String, title: String?, spaceBeforeColon: Boolean = true): String =

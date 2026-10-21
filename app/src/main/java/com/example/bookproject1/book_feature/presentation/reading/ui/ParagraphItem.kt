@@ -20,11 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
-
-data class TextHighlight(
-    val text: String,
-    val color: Color
-)
+import com.example.bookproject1.book_feature.presentation.reading.logic.TextHighlight
 
 @Composable
 fun ParagraphItem(

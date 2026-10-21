@@ -1,9 +1,11 @@
 package com.example.bookproject1.book_feature.data.mapper
 
 import com.example.bookproject1.book_feature.data.local.entity.BookEntity
+import com.example.bookproject1.book_feature.data.local.entity.BookHighlightEntity
 import com.example.bookproject1.book_feature.data.remote.dto.BookTreeDto
 import com.example.bookproject1.book_feature.data.remote.dto.SectionDto
 import com.example.bookproject1.book_feature.data.util.ArabicNormalizer
+import com.example.bookproject1.book_feature.domain.model.BookHighlight
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
 
 
@@ -97,4 +99,24 @@ fun BookEntity.toDomainModel() = BookParagraph(
     faslName = faslName, faslTitle = faslTitle,
     mabhathName = mabhathName, mabhathTitle = mabhathTitle,
     subheading = subheading, contentText = contentText
+)
+
+fun BookHighlightEntity.toDomainModel() = BookHighlight(
+    id = id,
+    partNumber = partNumber,
+    paragraphId = paragraphId,
+    sectionTitle = sectionTitle,
+    selectedText = selectedText,
+    colorHex = colorHex,
+    createdAt = createdAt
+)
+
+fun BookHighlight.toEntity() = BookHighlightEntity(
+    id = id,
+    partNumber = partNumber,
+    paragraphId = paragraphId,
+    sectionTitle = sectionTitle,
+    selectedText = selectedText,
+    colorHex = colorHex,
+    createdAt = createdAt
 )

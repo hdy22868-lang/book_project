@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookproject1.app.ui.theme.UiFontFamily
 import com.example.bookproject1.book_feature.domain.model.TocNode
+import com.example.bookproject1.book_feature.presentation.booktoc.logic.TocRow
 
-data class TocRow(val node: TocNode, val depth: Int)
 
 @Composable
 fun TocRowItem(
@@ -42,10 +42,8 @@ fun TocRowItem(
     modifier: Modifier = Modifier
 ) {
     val node = row.node
-    // السهم يظهر فقط لأي عنصر جواه تفرعات/محتوى
     val hasChildren = node is TocNode.Branch && node.children.isNotEmpty()
 
-    // تدوير السهم بنعومة عند الفتح والإغلاق
     val rotationState by animateFloatAsState(
         targetValue = if (isExpanded) 180f else 0f,
         label = "ArrowRotation"
@@ -73,7 +71,6 @@ fun TocRowItem(
                 .padding(horizontal = 16.dp, vertical = 13.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 1. النص محاذى لليمين تماماً بخط مريح ومجكنم
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center
@@ -89,7 +86,6 @@ fun TocRowItem(
                 )
             }
 
-            // 2. السهم على أقصى اليسار يظهر فقط إذا كان تحته عناصر متفرعة
             if (hasChildren) {
                 Spacer(modifier = Modifier.width(12.dp))
                 Icon(

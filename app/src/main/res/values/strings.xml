@@ -1,22 +1,82 @@
 <resources>
     <string name="app_name">المصابيح</string>
+    <string name="splash_logo_desc">شعار كتاب المصابيح</string>
+
+    <!-- الأجزاء -->
     <string name="part_one">الجزء الأول</string>
     <string name="part_two">الجزء الثاني</string>
     <string name="part_three">الجزء الثالث</string>
     <string name="part_four">الجزء الرابع</string>
     <string name="part_five">الجزء الخامس</string>
+    <string name="part_title">الجزء %1$d</string>
+
+    <!-- الشاشة الرئيسية -->
     <string name="home_title">الرئيسية</string>
     <string name="toggle_layout">تغيير طريقة العرض</string>
-    <string name="part_title">الجزء %d</string>
-    <string name="back_button_desc">رجوع</string>
+
+    <!-- شريط التنقل السفلي -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_search">البحث</string>
+    <string name="nav_settings">الإعدادات</string>
+    <string name="retry">إعادة المحاولة</string>
+    <string name="close">إغلاق</string>
+
+    <!-- شاشة الفهرس -->
     <string name="no_chapters_found">لا توجد فصول في هذا الجزء.</string>
     <string name="toc_load_error">تعذّر تحميل الفهرس</string>
-    <string name="retry">إعادة المحاولة</string>
+    <string name="chapter_text_node">نص الفصل</string>
+
+    <!-- شاشة القراءة والتظليل -->
     <string name="choose_color">اختر لون التظليل:</string>
     <string name="string_distance">ضبط تباعد النصوص</string>
     <string name="line_distance">تباعد الأسطر: %1$s</string>
     <string name="line_distence">تباعد الكلمات: %1$s</string>
     <string name="cant_reload">تعذّر تحميل النص</string>
-    <string name="write">"اكتب كلمة أو عبارة للبحث "</string>
+    <string name="added_to_favorites">تمت الإضافة إلى المفضلة</string>
+    <string name="select_text_first">حدد نصاً ثم اختر اللون</string>
+    <string name="toggle_theme">تبديل الثيم</string>
+    <string name="text_spacing">تباعد النصوص</string>
+    <string name="highlight_color">لون التظليل</string>
+
+    <!-- شاشة البحث -->
+    <string name="search_hint">ابحث...</string>
+    <string name="search_error">حدث خطأ أثناء البحث، يرجى المحاولة ثانية.</string>
+    <string name="search_filter_all">كل الاجزاء</string>
+    <string name="search_prompt">اكتب كلمة أو عبارة للبحث </string>
+    <string name="search_no_results">لا توجد نتائج تطابق بحثك</string>
+    <string name="search_results_count"> تم العثور على %1$d نتيجة</string>
+    <string name="clear_query">مسح نص البحث</string>
+    <string name="write">اكتب كلمة أو عبارة للبحث</string>
     <string name="no_match">لم يتم العثور على نتائج تطابق «%1$s»</string>
+
+    <!-- شاشة الإعدادات -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="theme_section_title">المظهر</string>
+    <string name="theme_light">المظهر الفاتح</string>
+    <string name="theme_dark">المظهر الداكن</string>
+    <string name="favorites_card_title">النصوص المفضلة والمظللة</string>
+    <string name="favorites_card_subtitle">عرض وإدارة النصوص التي قمت بحفظها أثناء القراءة</string>
+    <string name="about_card_title">عن التطبيق</string>
+    <string name="about_card_subtitle">فريق العمل ومعلومات الإصدار</string>
+
+    <!-- ورقة ونصوص المفضلة -->
+    <string name="favorites_sheet_title">النصوص المفضلة (%1$d)</string>
+    <string name="favorites_empty_desc">لم تقم بتظليل أو حفظ أي نص بعد.\nيمكنك تظليل أي نص أثناء القراءة ليُحفظ هنا.</string>
+    <string name="favorite_detail_title">النص المفضل</string>
+    <string name="favorite_not_found">تعذر العثور على النص المفضل.</string>
+    <string name="copied_to_clipboard">تم نسخ النص إلى الحافظة</string>
+    <string name="deleted_from_favorites">تم حذف النص من المفضلة</string>
+    <string name="copy">نسخ</string>
+    <string name="share">مشاركة</string>
+    <string name="delete">حذف</string>
+    <string name="back">رجوع</string>
+
+    <!-- حوار عن التطبيق -->
+    <string name="about_dialog_title">عن التطبيق</string>
+    <string name="about_app_name">تطبيق كتاب المصابيح</string>
+    <string name="about_app_description">يهدف التطبيق الى وضع نص كتاب المصابيح (شرح ادعية مختارة من الصحيفة السجادية ودعاء ابي حمزة الثمالي) للامام زين العابدين بين يدي القارئ مع امكانية البحث وسهولة التصفح والمطالعة.</string>
+    <string name="about_review_title">المراجعة اللغوية والتحقيق</string>
+    <string name="about_collection_title">الجمع والتدوين</string>
+    <string name="about_design_title">التصميم والإخراج</string>
+    <string name="about_development_title">تطوير وبرمجة</string>
 </resources>

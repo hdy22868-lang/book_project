@@ -31,10 +31,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bookproject1.R
 import com.example.bookproject1.app.ui.theme.BrownBackgroundDark
 import com.example.bookproject1.app.ui.theme.CreamBackgroundLight
 import com.example.bookproject1.app.ui.theme.UiFontFamily
@@ -72,7 +74,7 @@ fun SettingsScreen(
                     CenterAlignedTopAppBar(
                         title = {
                             Text(
-                                text = "الإعدادات",
+                                text = stringResource(R.string.settings_title),
                                 fontFamily = UiFontFamily,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 19.sp,
@@ -104,7 +106,6 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        // 1. قسم اختيار المظهر
                         ThemeSelectorSection(
                             isDarkTheme = isDarkTheme,
                             onThemeChangeWithOffset = { newIsDark, offset ->
@@ -130,10 +131,10 @@ fun SettingsScreen(
                     }
 
                     item {
-                        // 2. كارت النصوص المفضلة والمظللة
+
                         SettingsItemCard(
-                            title = "النصوص المفضلة والمظللة",
-                            subtitle = "عرض وإدارة النصوص التي قمت بحفظها أثناء القراءة",
+                            title = stringResource(R.string.favorites_card_title),
+                            subtitle = stringResource(R.string.favorites_card_subtitle),
                             icon = Icons.Outlined.BookmarkBorder,
                             badgeCount = highlights.size,
                             onClick = { showFavoritesSheet = true }
@@ -141,10 +142,10 @@ fun SettingsScreen(
                     }
 
                     item {
-                        // 3. كارت عن التطبيق
+
                         SettingsItemCard(
-                            title = "عن التطبيق",
-                            subtitle = "فريق العمل ومعلومات الإصدار",
+                            title = stringResource(R.string.about_card_title),
+                            subtitle = stringResource(R.string.about_card_subtitle),
                             icon = Icons.Outlined.Info,
                             onClick = { showAboutDialog = true }
                         )
@@ -152,21 +153,19 @@ fun SettingsScreen(
                 }
             }
 
-            // أنميشن الموجة الضوئية المتوسعة بسلاسة دون حجب محتوى الشاشة
             if (isRippling) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val maxRadius = hypot(size.width, size.height) * 1.15f
                     val currentRadius = maxRadius * rippleProgress.value
                     val fadeAlpha = (1f - rippleProgress.value).coerceIn(0f, 1f)
 
-                    // 1. هالة ضوئية ناعمة من لون المظهر الجديد
+
                     drawCircle(
                         color = rippleColor.copy(alpha = fadeAlpha * 0.35f),
                         radius = currentRadius,
                         center = rippleCenter
                     )
 
-                    // 2. حلقة تموجية ذهبية بارزة تنبثق وتتلاشى نحو الخارج
                     drawCircle(
                         color = BottomBarGold.copy(alpha = fadeAlpha * 0.65f),
                         radius = currentRadius,

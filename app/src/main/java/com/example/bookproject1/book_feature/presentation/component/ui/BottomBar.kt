@@ -26,20 +26,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bookproject1.R
 import com.example.bookproject1.app.ui.theme.UiFontFamily
 
 enum class BottomTab(
-    val title: String,
+    val titleRes: Int,
     val icon: ImageVector
 ) {
-    SEARCH("البحث", Icons.Default.Search),
-    HOME("الرئيسية", Icons.Default.Home),
-    SETTINGS("الإعدادات", Icons.Default.Settings)
+    SEARCH(R.string.nav_search, Icons.Default.Search),
+    HOME(R.string.nav_home, Icons.Default.Home),
+    SETTINGS(R.string.nav_settings, Icons.Default.Settings)
 }
-
 
 val BottomBarGold = Color(0xFFF0B832)
 val BottomBarUnselected = Color(0xFF8F857D)
@@ -55,7 +56,6 @@ fun BottomBar(
         modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.navigationBarsPadding()) {
-
             HorizontalDivider(
                 thickness = 0.6.dp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
@@ -69,10 +69,10 @@ fun BottomBar(
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 BottomTab.entries.forEach { tab ->
                     val isSelected = tab == currentTab
                     val itemColor = if (isSelected) BottomBarGold else BottomBarUnselected
+                    val title = stringResource(tab.titleRes)
 
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -89,7 +89,7 @@ fun BottomBar(
                     ) {
                         Icon(
                             imageVector = tab.icon,
-                            contentDescription = tab.title,
+                            contentDescription = title,
                             tint = itemColor,
                             modifier = Modifier.size(24.dp)
                         )
@@ -97,7 +97,7 @@ fun BottomBar(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = tab.title,
+                            text = title,
                             fontFamily = UiFontFamily,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                             fontSize = 12.sp,
