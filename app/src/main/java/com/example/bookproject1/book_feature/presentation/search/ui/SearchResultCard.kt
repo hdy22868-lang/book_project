@@ -26,9 +26,10 @@ import androidx.compose.ui.unit.sp
 import com.example.bookproject1.app.ui.theme.UiFontFamily
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
 import com.example.bookproject1.book_feature.presentation.component.ui.BottomBarGold
+import com.example.bookproject1.book_feature.presentation.search.logic.SearchHighlightUtils.buildSmartSnippet
 
 @Composable
-fun SearchResultCard(
+fun SearchResultCard (
     paragraph: BookParagraph,
     searchQuery: String,
     onClick: () -> Unit,
@@ -43,7 +44,6 @@ fun SearchResultCard(
         else -> "الجزء ${paragraph.partNumber}"
     }
 
-    // المسار الهرمي
     val breadcrumbs = remember(paragraph) {
         listOfNotNull(
             paragraph.mainSectionName.takeIf { it.isNotBlank() },
@@ -52,7 +52,7 @@ fun SearchResultCard(
         ).joinToString(" › ")
     }
 
-    // اقتطاع ذكي يركز على مكان الكلمة المبحوث عنها وتظليل حروفها بدقة مع الحفاظ على كمال ونهاية الحروف الأخيرة (مثل كأس اللام)
+
     val highlightedSnippet = remember(paragraph.contentText, searchQuery) {
         buildSmartSnippet(
             fullText = paragraph.contentText,
@@ -76,7 +76,7 @@ fun SearchResultCard(
                 .fillMaxWidth()
                 .padding(14.dp)
         ) {
-            // شارة الجزء والمسار
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
@@ -110,7 +110,7 @@ fun SearchResultCard(
                 }
             }
 
-            // العنوان الفرعي
+
             if (!paragraph.subheading.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -123,7 +123,7 @@ fun SearchResultCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // مقتطف النص مع الهايلايت المضبوط
+
             Text(
                 text = highlightedSnippet,
                 style = MaterialTheme.typography.bodyMedium,

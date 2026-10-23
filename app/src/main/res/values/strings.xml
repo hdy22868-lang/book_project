@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">المصابيح</string>
-    <string name="splash_logo_desc">شعار كتاب المصابيح</string>
 
     <!-- الأجزاء -->
     <string name="part_one">الجزء الأول</string>
@@ -24,7 +23,6 @@
     <!-- شاشة الفهرس -->
     <string name="no_chapters_found">لا توجد فصول في هذا الجزء.</string>
     <string name="toc_load_error">تعذّر تحميل الفهرس</string>
-    <string name="chapter_text_node">نص الفصل</string>
 
     <!-- شاشة القراءة والتظليل -->
     <string name="choose_color">اختر لون التظليل:</string>
@@ -32,21 +30,16 @@
     <string name="line_distance">تباعد الأسطر: %1$s</string>
     <string name="line_distence">تباعد الكلمات: %1$s</string>
     <string name="cant_reload">تعذّر تحميل النص</string>
-    <string name="added_to_favorites">تمت الإضافة إلى المفضلة</string>
-    <string name="select_text_first">حدد نصاً ثم اختر اللون</string>
     <string name="toggle_theme">تبديل الثيم</string>
     <string name="text_spacing">تباعد النصوص</string>
     <string name="highlight_color">لون التظليل</string>
 
     <!-- شاشة البحث -->
     <string name="search_hint">ابحث...</string>
-    <string name="search_error">حدث خطأ أثناء البحث، يرجى المحاولة ثانية.</string>
     <string name="search_filter_all">كل الاجزاء</string>
     <string name="search_prompt">اكتب كلمة أو عبارة للبحث </string>
-    <string name="search_no_results">لا توجد نتائج تطابق بحثك</string>
     <string name="search_results_count"> تم العثور على %1$d نتيجة</string>
     <string name="clear_query">مسح نص البحث</string>
-    <string name="write">اكتب كلمة أو عبارة للبحث</string>
     <string name="no_match">لم يتم العثور على نتائج تطابق «%1$s»</string>
 
     <!-- شاشة الإعدادات -->
@@ -64,8 +57,6 @@
     <string name="favorites_empty_desc">لم تقم بتظليل أو حفظ أي نص بعد.\nيمكنك تظليل أي نص أثناء القراءة ليُحفظ هنا.</string>
     <string name="favorite_detail_title">النص المفضل</string>
     <string name="favorite_not_found">تعذر العثور على النص المفضل.</string>
-    <string name="copied_to_clipboard">تم نسخ النص إلى الحافظة</string>
-    <string name="deleted_from_favorites">تم حذف النص من المفضلة</string>
     <string name="copy">نسخ</string>
     <string name="share">مشاركة</string>
     <string name="delete">حذف</string>

@@ -113,7 +113,12 @@ fun ReadingBottomBar(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-
+                Text(
+                    text = fontSize.toInt().toString(),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 IconButton(onClick = onDecreaseFontSize) {
                     Text(
                         text = "A-",

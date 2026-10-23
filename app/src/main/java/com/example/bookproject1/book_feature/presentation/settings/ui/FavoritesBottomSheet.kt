@@ -65,7 +65,7 @@ fun FavoritesBottomSheet(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = stringResource(R.string.favorites_sheet_title),
+                        text = stringResource(R.string.favorites_sheet_title, highlights.size),
                         fontFamily = UiFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,

@@ -5,7 +5,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.example.bookproject1.book_feature.presentation.component.ui.BottomBarGold
 
-class SearchHighlightUtils {
+object SearchHighlightUtils {
     private val ZWJ = "\u200D"
     private val NON_CONNECTING_TO_NEXT = setOf('أ', 'إ', 'آ', 'ا', 'ٱ', 'د', 'ذ', 'ر', 'ز', 'و', 'ؤ', 'ء', 'ة')
     private val DIACRITICS = setOf('ً', 'ٌ', 'ٍ', 'َ', 'ُ', 'ِ', 'ّ', 'ْ', 'ٓ', 'ٔ')

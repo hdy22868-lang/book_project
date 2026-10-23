@@ -27,24 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.bookproject1.R
-import com.example.bookproject1.book_feature.domain.model.TocNode
 import com.example.bookproject1.book_feature.presentation.booktoc.logic.BookTocUiState
+import com.example.bookproject1.book_feature.presentation.booktoc.logic.flatten
 import com.example.bookproject1.book_feature.presentation.component.logic.BookPart
-
-private fun flatten(
-    nodes: List<TocNode>,
-    expandedIds: Set<String>,
-    depth: Int = 0
-): List<TocRow> {
-    val result = mutableListOf<TocRow>()
-    for (node in nodes) {
-        result.add(TocRow(node, depth))
-        if (node is TocNode.Branch && node.id in expandedIds) {
-            result.addAll(flatten(node.children, expandedIds, depth + 1))
-        }
-    }
-    return result
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

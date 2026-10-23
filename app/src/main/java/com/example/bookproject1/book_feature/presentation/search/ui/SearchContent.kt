@@ -251,7 +251,7 @@ fun SearchContent(
                                 shape = RoundedCornerShape(10.dp),
                                 label = {
                                     Text(
-                                        text = stringResource(R.string.part_title),
+                                        text = stringResource(R.string.part_title, part),
                                         fontFamily = UiFontFamily,
                                         fontWeight = if (isPartSelected) FontWeight.Bold else FontWeight.Normal,
                                         fontSize = 12.5.sp
@@ -361,7 +361,7 @@ fun SearchContent(
                             )
                             Spacer(modifier = Modifier.height(14.dp))
                             Text(
-                                text = stringResource(R.string.no_match),
+                                text = stringResource(R.string.no_match, uiState.query),
                                 fontFamily = UiFontFamily,
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
@@ -385,7 +385,7 @@ fun SearchContent(
                         ) {
                             item {
                                 Text(
-                                    text = stringResource(R.string.search_results_count),
+                                    text = stringResource(R.string.search_results_count, uiState.filteredResults.size),
                                     fontFamily = UiFontFamily,
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
