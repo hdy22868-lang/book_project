@@ -1,11 +1,12 @@
 package com.example.bookproject1.book_feature.di
 
 import androidx.room.Room
-import com.example.bookproject1.book_feature.data.local.BookDatabase
-import com.example.bookproject1.book_feature.data.local.ThemeDataStore
+import com.example.bookproject1.book_feature.data.local.database.BookDatabase
+import com.example.bookproject1.book_feature.data.local.datastore.ThemeDataStore
 import com.example.bookproject1.book_feature.data.repository.BookRepositoryImpl
 import com.example.bookproject1.book_feature.domain.repository.BookRepository
 import com.example.bookproject1.book_feature.presentation.booktoc.logic.BookTocViewModel
+import com.example.bookproject1.book_feature.presentation.favorites.logic.FavoritesViewModel
 import com.example.bookproject1.book_feature.presentation.home.logic.HomeViewModel
 import com.example.bookproject1.book_feature.presentation.reading.logic.BookReadingViewModel
 import com.example.bookproject1.book_feature.presentation.search.logic.SearchViewModel
@@ -47,4 +48,5 @@ val bookModule = module {
     viewModelOf(::BookReadingViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::SettingsViewModel)
+    viewModelOf(::FavoritesViewModel)
 }

@@ -1,5 +1,6 @@
 package com.example.bookproject1.book_feature.presentation.reading.logic
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,11 +20,33 @@ class BookReadingViewModel(
     private val repository: BookRepository
 ) : ViewModel() {
     private val route = savedStateHandle.toRoute<BookReadingRoute>()
-    private val _uiState = MutableStateFlow(BookReadingUiState())
+    private val _uiState = MutableStateFlow(
+        BookReadingUiState(targetParagraphId = route.targetParagraphId)
+    )
     val uiState: StateFlow<BookReadingUiState> = _uiState.asStateFlow()
 
     init {
         loadContent()
+        observeHighlights()
+    }
+
+    private fun observeHighlights() {
+        viewModelScope.launch {
+            repository.getAllHighlights().collect { allHighlights ->
+                val partHighlights = allHighlights
+                    .filter { it.partNumber == route.partId }
+                    .groupBy { it.paragraphId }
+                    .mapValues { (_, highlights) ->
+                        highlights.map { hl ->
+                            TextHighlight(
+                                text = hl.selectedText,
+                                color = Color(hl.colorHex.toInt())
+                            )
+                        }
+                    }
+                _uiState.update { it.copy(highlightsMap = partHighlights) }
+            }
+        }
     }
 
     fun loadContent() {

@@ -8,7 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.bookproject1.app.navigation.AppNavigation
 import com.example.bookproject1.app.ui.theme.AlMasabeehTheme
-import com.example.bookproject1.book_feature.data.local.ThemeDataStore
+import com.example.bookproject1.book_feature.data.local.datastore.ThemeDataStore
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {

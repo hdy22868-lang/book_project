@@ -1,4 +1,4 @@
-package com.example.bookproject1.book_feature.data.local
+package com.example.bookproject1.book_feature.data.local.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

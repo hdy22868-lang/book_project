@@ -1,4 +1,4 @@
-package com.example.bookproject1.book_feature.data.local
+package com.example.bookproject1.book_feature.data.local.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore

@@ -51,8 +51,7 @@ import kotlin.math.hypot
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
-    onNavigateHome: () -> Unit,
-    onNavigateSearch: () -> Unit,
+    onTabSelected: (BottomTab) -> Unit,
     modifier: Modifier = Modifier,
     onHighlightClick: (highlightId: Int) -> Unit = {}
 ) {
@@ -89,13 +88,7 @@ fun SettingsScreen(
                 bottomBar = {
                     BottomBar(
                         currentTab = BottomTab.SETTINGS,
-                        onTabSelected = { tab ->
-                            when (tab) {
-                                BottomTab.HOME -> onNavigateHome()
-                                BottomTab.SEARCH -> onNavigateSearch()
-                                BottomTab.SETTINGS -> {}
-                            }
-                        }
+                        onTabSelected = onTabSelected
                     )
                 }
             ) { innerPadding ->
@@ -127,17 +120,6 @@ fun SettingsScreen(
                                     }
                                 }
                             }
-                        )
-                    }
-
-                    item {
-
-                        SettingsItemCard(
-                            title = stringResource(R.string.favorites_card_title),
-                            subtitle = stringResource(R.string.favorites_card_subtitle),
-                            icon = Icons.Outlined.BookmarkBorder,
-                            badgeCount = highlights.size,
-                            onClick = { showFavoritesSheet = true }
                         )
                     }
 
@@ -177,17 +159,6 @@ fun SettingsScreen(
         }
     }
 
-    if (showFavoritesSheet) {
-        FavoritesBottomSheet(
-            highlights = highlights,
-            onDismiss = { showFavoritesSheet = false },
-            onHighlightClick = { id ->
-                showFavoritesSheet = false
-                onHighlightClick(id)
-            },
-            onDeleteHighlight = { id -> viewModel.deleteHighlight(id) }
-        )
-    }
 
     if (showAboutDialog) {
         AboutDialog(

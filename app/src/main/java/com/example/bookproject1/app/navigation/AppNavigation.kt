@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,6 +16,10 @@ import androidx.navigation.toRoute
 import com.example.bookproject1.app.SplashScreen
 import com.example.bookproject1.book_feature.presentation.booktoc.logic.BookTocViewModel
 import com.example.bookproject1.book_feature.presentation.booktoc.ui.BookTocScreen
+import com.example.bookproject1.book_feature.presentation.component.ui.BottomTab
+import com.example.bookproject1.book_feature.presentation.favorites.logic.FavoritesViewModel
+import com.example.bookproject1.book_feature.presentation.favorites.ui.FavoriteDetailScreen
+import com.example.bookproject1.book_feature.presentation.favorites.ui.FavoritesScreen
 import com.example.bookproject1.book_feature.presentation.home.logic.HomeViewModel
 import com.example.bookproject1.book_feature.presentation.home.ui.HomeScreen
 import com.example.bookproject1.book_feature.presentation.reading.logic.BookReadingViewModel
@@ -22,7 +27,6 @@ import com.example.bookproject1.book_feature.presentation.reading.ui.BookReading
 import com.example.bookproject1.book_feature.presentation.search.logic.SearchViewModel
 import com.example.bookproject1.book_feature.presentation.search.ui.SearchScreen
 import com.example.bookproject1.book_feature.presentation.settings.logic.SettingsViewModel
-import com.example.bookproject1.book_feature.presentation.settings.ui.FavoriteDetailScreen
 import com.example.bookproject1.book_feature.presentation.settings.ui.SettingsScreen
 import org.koin.androidx.compose.koinViewModel
 
@@ -31,13 +35,23 @@ fun AppNavigation() {
     val navController = rememberNavController()
     var isSplashFinished by remember { mutableStateOf(false) }
 
+
+    val onBottomTabSelected: (BottomTab) -> Unit = { tab ->
+        val targetRoute: Any = when (tab) {
+            BottomTab.HOME -> HomeScreenRoute
+            BottomTab.SEARCH -> SearchRoute
+            BottomTab.FAVORITES -> FavoritesRoute
+            BottomTab.SETTINGS -> SettingsRoute
+        }
+        navController.navigateToBottomTab(targetRoute)
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        // الشاشة الرئيسية وكافة وجهات التطبيق
         NavHost(
             navController = navController,
             startDestination = HomeScreenRoute
         ) {
-            // 1. الشاشة الرئيسية
+
             composable<HomeScreenRoute> {
                 val viewModel = koinViewModel<HomeViewModel>()
                 HomeScreen(
@@ -45,16 +59,11 @@ fun AppNavigation() {
                     onPartClick = { partId ->
                         navController.navigate(BookTocRoute(partId = partId))
                     },
-                    onSearchClick = {
-                        navController.navigate(SearchRoute)
-                    },
-                    onSettingsClick = {
-                        navController.navigate(SettingsRoute)
-                    }
+                    onTabSelected = onBottomTabSelected
                 )
             }
 
-            // 2. شاشة الفهرس
+
             composable<BookTocRoute> { backStackEntry ->
                 val viewModel = koinViewModel<BookTocViewModel>()
                 val route = backStackEntry.toRoute<BookTocRoute>()
@@ -73,8 +82,9 @@ fun AppNavigation() {
                     }
                 )
             }
-            composable<BookReadingRoute> { backStackEntry ->
-                val route = backStackEntry.toRoute<BookReadingRoute>()
+
+
+            composable<BookReadingRoute> {
                 val viewModel = koinViewModel<BookReadingViewModel>()
                 BookReadingScreen(
                     viewModel = viewModel,
@@ -82,68 +92,68 @@ fun AppNavigation() {
                 )
             }
 
-            // 3. شاشة البحث
+
             composable<SearchRoute> {
                 val viewModel = koinViewModel<SearchViewModel>()
                 SearchScreen(
                     viewModel = viewModel,
                     onNavigateBack = { navController.navigateUp() },
-                    onNavigateHome = {
-                        navController.navigate(HomeScreenRoute) {
-                            popUpTo(HomeScreenRoute) { inclusive = true }
-                        }
-                    },
-                    onNavigateSettings = {
-                        navController.navigate(SettingsRoute)
-                    },
-                    onResultClick = { partNumber, orderIndex ->
-                        navController.navigate(
-                            BookReadingRoute(
-                                partId = partNumber,
-                                startIndex = orderIndex,
-                                endIndex = orderIndex
-                            )
-                        )
+                    onTabSelected = onBottomTabSelected,
+                    onNavigateToReading = { readingRoute ->
+                        navController.navigate(readingRoute)
                     }
                 )
             }
 
-            // 4. شاشة الإعدادات
-            composable<SettingsRoute> {
-                val viewModel = koinViewModel<SettingsViewModel>()
-                SettingsScreen(
+            composable<FavoritesRoute> {
+                val viewModel = koinViewModel<FavoritesViewModel>()
+                FavoritesScreen(
                     viewModel = viewModel,
-                    onNavigateHome = {
-                        navController.navigate(HomeScreenRoute) {
-                            popUpTo(HomeScreenRoute) { inclusive = true }
-                        }
-                    },
-                    onNavigateSearch = {
-                        navController.navigate(SearchRoute)
-                    },
+                    onTabSelected = onBottomTabSelected,
                     onHighlightClick = { highlightId ->
                         navController.navigate(FavoriteDetailRoute(highlightId = highlightId))
                     }
                 )
             }
 
-            // 5. شاشة تفاصيل النص المفضل
+
+            composable<SettingsRoute> {
+                val viewModel = koinViewModel<SettingsViewModel>()
+                SettingsScreen(
+                    viewModel = viewModel,
+                    onTabSelected = onBottomTabSelected
+                )
+            }
+
+
             composable<FavoriteDetailRoute> { backStackEntry ->
                 val route = backStackEntry.toRoute<FavoriteDetailRoute>()
-                val viewModel = koinViewModel<SettingsViewModel>()
+                val viewModel = koinViewModel<FavoritesViewModel>()
                 FavoriteDetailScreen(
                     highlightId = route.highlightId,
                     viewModel = viewModel,
-                    onNavigateBack = { navController.navigateUp() }
+                    onNavigateBack = { navController.navigateUp() },
+                    onNavigateToReading = { readingRoute ->
+                        navController.navigate(readingRoute)
+                    }
                 )
             }
         }
 
-        // شاشة البداية تكون كطبقة فوق الشاشة الرئيسية، وتذوب تدريجياً لتكشف الرئيسية تحتها
         if (!isSplashFinished) {
             SplashScreen(
                 onSplashFinished = { isSplashFinished = true }
             )
         }
+    }
+}
+
+private fun NavHostController.navigateToBottomTab(route: Any) {
+    navigate(route) {
+        popUpTo(HomeScreenRoute) {
+            saveState = true
+        }
+        launchSingleTop = true
+        restoreState = true
     }
 }

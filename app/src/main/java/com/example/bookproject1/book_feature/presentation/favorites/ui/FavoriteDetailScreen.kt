@@ -1,4 +1,4 @@
-package com.example.bookproject1.book_feature.presentation.settings.ui
+package com.example.bookproject1.book_feature.presentation.favorites.ui
 
 import android.content.Context
 import android.content.Intent
@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.FormatQuote
@@ -46,6 +47,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,20 +63,25 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookproject1.R
+import com.example.bookproject1.app.navigation.BookReadingRoute
 import com.example.bookproject1.app.ui.theme.UiFontFamily
+import com.example.bookproject1.book_feature.presentation.component.logic.BookPart
 import com.example.bookproject1.book_feature.presentation.component.ui.BottomBarGold
-import com.example.bookproject1.book_feature.presentation.settings.logic.SettingsViewModel
+import com.example.bookproject1.book_feature.presentation.favorites.logic.FavoritesViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteDetailScreen(
     highlightId: Int,
-    viewModel: SettingsViewModel,
+    viewModel: FavoritesViewModel,
     onNavigateBack: () -> Unit,
+    onNavigateToReading: (BookReadingRoute) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val highlights by viewModel.highlights.collectAsState()
-    val highlight = highlights.find { it.id == highlightId }
+    val coroutineScope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsState()
+    val highlight = uiState.allHighlights.find { it.id == highlightId }
 
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
@@ -147,14 +154,7 @@ fun FavoriteDetailScreen(
                     )
                 }
             } else {
-                val partTitle = when (highlight.partNumber) {
-                    1 -> "الجزء الأول"
-                    2 -> "الجزء الثاني"
-                    3 -> "الجزء الثالث"
-                    4 -> "الجزء الرابع"
-                    5 -> "الجزء الخامس"
-                    else -> "الجزء ${highlight.partNumber}"
-                }
+                val partTitle = stringResource(BookPart.titleResOf(highlight.partNumber))
 
                 Column(
                     modifier = Modifier
@@ -276,6 +276,39 @@ fun FavoriteDetailScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
+
+                    Button(
+                        onClick = {
+                            viewModel.openHighlightInBook(highlight) { readingRoute ->
+                                onNavigateToReading(readingRoute)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = BottomBarGold,
+                            contentColor = MaterialTheme.colorScheme.surface
+                        ),
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.continue_reading),
+                            fontFamily = UiFontFamily,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -283,7 +316,11 @@ fun FavoriteDetailScreen(
                         Button(
                             onClick = {
                                 clipboardManager.setText(AnnotatedString(highlight.selectedText))
-                                Toast.makeText(context, "تم نسخ النص إلى الحافظة", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "تم نسخ النص إلى الحافظة",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = BottomBarGold,
@@ -310,7 +347,10 @@ fun FavoriteDetailScreen(
 
                         OutlinedButton(
                             onClick = {
-                                shareText(context, highlight.selectedText)
+                                coroutineScope.launch {
+                                    val fullShareText = viewModel.buildShareText(context, highlight)
+                                    shareText(context, fullShareText)
+                                }
                             },
                             shape = RoundedCornerShape(14.dp),
                             modifier = Modifier
@@ -331,7 +371,6 @@ fun FavoriteDetailScreen(
                             )
                         }
                     }
-
                     Spacer(modifier = Modifier.height(30.dp))
                 }
             }
@@ -339,7 +378,7 @@ fun FavoriteDetailScreen(
     }
 }
 
-private fun shareText(context: Context, text: String) {
+fun shareText(context: Context, text: String) {
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
         putExtra(Intent.EXTRA_TEXT, text)

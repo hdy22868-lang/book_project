@@ -2,6 +2,8 @@ package com.example.bookproject1.book_feature.presentation.search.logic
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.bookproject1.app.navigation.BookReadingRoute
+import com.example.bookproject1.book_feature.domain.model.BookParagraph
 import com.example.bookproject1.book_feature.domain.repository.BookRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -126,6 +128,30 @@ class SearchViewModel(
                     )
                 }
             }
+        }
+    }
+    fun openSearchResultInBook(
+        paragraph: BookParagraph,
+        onRouteReady: (BookReadingRoute) -> Unit
+    ) {
+        viewModelScope.launch {
+            val range = repository.getSectionRangeForParagraph(paragraph.id)
+            val route = if (range != null) {
+                BookReadingRoute(
+                    partId = paragraph.partNumber,
+                    startIndex = range.startIndex,
+                    endIndex = range.endIndex,
+                    targetParagraphId = paragraph.id
+                )
+            } else {
+                BookReadingRoute(
+                    partId = paragraph.partNumber,
+                    startIndex = paragraph.orderIndex,
+                    endIndex = paragraph.orderIndex,
+                    targetParagraphId = paragraph.id
+                )
+            }
+            onRouteReady(route)
         }
     }
 }

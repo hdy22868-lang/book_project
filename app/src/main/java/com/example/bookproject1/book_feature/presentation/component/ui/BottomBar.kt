@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -39,6 +40,7 @@ enum class BottomTab(
 ) {
     SEARCH(R.string.nav_search, Icons.Default.Search),
     HOME(R.string.nav_home, Icons.Default.Home),
+    FAVORITES(R.string.nav_favorites, Icons.Default.Bookmark),
     SETTINGS(R.string.nav_settings, Icons.Default.Settings)
 }
 
@@ -83,7 +85,9 @@ fun BottomBar(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
                             ) {
-                                onTabSelected(tab)
+                                if (!isSelected) {
+                                    onTabSelected(tab)
+                                }
                             }
                             .padding(vertical = 4.dp)
                     ) {

@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookproject1.R
 import com.example.bookproject1.app.ui.theme.UiFontFamily
+import com.example.bookproject1.book_feature.domain.model.BookParagraph
 import com.example.bookproject1.book_feature.presentation.component.ui.BottomBar
 import com.example.bookproject1.book_feature.presentation.component.ui.BottomBarGold
 import com.example.bookproject1.book_feature.presentation.component.ui.BottomTab
@@ -72,9 +73,8 @@ fun SearchContent(
     uiState: SearchUiState,
     onAction: (SearchAction) -> Unit,
     onNavigateBack: () -> Unit,
-    onNavigateHome: () -> Unit = onNavigateBack,
-    onNavigateSettings: () -> Unit = {},
-    onResultClick: (partNumber: Int, orderIndex: Int) -> Unit,
+    onTabSelected: (BottomTab) -> Unit,
+    onResultClick: (BookParagraph) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -274,11 +274,7 @@ fun SearchContent(
                     currentTab = BottomTab.SEARCH,
                     onTabSelected = { tab ->
                         dismissKeyboard()
-                        when (tab) {
-                            BottomTab.HOME -> onNavigateHome()
-                            BottomTab.SETTINGS -> onNavigateSettings()
-                            BottomTab.SEARCH -> {}
-                        }
+                        onTabSelected(tab)
                     }
                 )
             }
@@ -400,7 +396,7 @@ fun SearchContent(
                                     searchQuery = uiState.query,
                                     onClick = {
                                         dismissKeyboard()
-                                        onResultClick(result.partNumber, result.orderIndex)
+                                        onResultClick(result)
                                     }
                                 )
                             }

@@ -6,6 +6,8 @@ data class BookReadingUiState(
     val paragraphs: List<BookParagraph> = emptyList(),
     val title: String = "",
     val subtitle: String? = null,
+    val highlightsMap: Map<Int, List<TextHighlight>> = emptyMap(),
+    val targetParagraphId: Int? = null,
     val isLoading: Boolean = true,
     val isError: Boolean = false
 )

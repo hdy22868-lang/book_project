@@ -1,4 +1,4 @@
-package com.example.bookproject1.book_feature.presentation.settings.ui
+package com.example.bookproject1.book_feature.presentation.favorites.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

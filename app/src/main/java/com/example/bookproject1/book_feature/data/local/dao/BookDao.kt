@@ -62,6 +62,24 @@ interface BookDao {
         limit: Int = 300
     ): List<BookEntity>
 
+    @Query(
+        """
+    SELECT p2.mainSectionName, p2.mainSectionTitle, p2.faslName, p2.faslTitle, p2.mabhathName, p2.mabhathTitle,
+           MIN(p2.orderIndex) AS startIndex, MAX(p2.orderIndex) AS endIndex
+    FROM book_paragraphs p1
+    JOIN book_paragraphs p2 ON p1.partNumber = p2.partNumber
+         AND p1.mainSectionName = p2.mainSectionName
+         AND ((p1.faslName IS NULL AND p2.faslName IS NULL) OR p1.faslName = p2.faslName)
+         AND ((p1.mabhathName IS NULL AND p2.mabhathName IS NULL) OR p1.mabhathName = p2.mabhathName)
+    WHERE p1.id = :paragraphId
+    GROUP BY p2.mainSectionName, p2.faslName, p2.mabhathName
+    LIMIT 1
+"""
+    )
+    suspend fun getSectionRangeForParagraph(paragraphId: Int): TocItemTuple?
+
+    @Query("SELECT * FROM book_paragraphs WHERE id = :id LIMIT 1")
+    suspend fun getParagraphById(id: Int): BookEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHighlight(highlight: BookHighlightEntity)

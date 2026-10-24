@@ -1,14 +1,14 @@
 package com.example.bookproject1.book_feature.data.repository
 
 import android.content.Context
-import com.example.bookproject1.R
-import com.example.bookproject1.book_feature.data.local.ThemeDataStore
+import com.example.bookproject1.book_feature.data.local.datastore.ThemeDataStore
 import com.example.bookproject1.book_feature.data.local.dao.BookDao
 import com.example.bookproject1.book_feature.data.mapper.toDomainModel
 import com.example.bookproject1.book_feature.data.mapper.toEntity
 import com.example.bookproject1.book_feature.data.mapper.toEntityList
 import com.example.bookproject1.book_feature.data.remote.dto.BookTreeDto
 import com.example.bookproject1.book_feature.data.util.ArabicNormalizer
+import com.example.bookproject1.book_feature.data.util.TocItemTuple
 import com.example.bookproject1.book_feature.domain.model.BookHighlight
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
 import com.example.bookproject1.book_feature.domain.model.TocNode
@@ -141,6 +141,15 @@ class BookRepositoryImpl(
 
     override suspend fun deleteHighlight(id: Int) {
         bookDao.deleteHighlight(id)
+    }
+
+    override suspend fun getSectionRangeForParagraph(paragraphId: Int): TocItemTuple? =
+        withContext(Dispatchers.IO) {
+            bookDao.getSectionRangeForParagraph(paragraphId)
+        }
+
+    override suspend fun getParagraphById(id: Int): BookParagraph? = withContext(Dispatchers.IO) {
+        bookDao.getParagraphById(id)?.toDomainModel()
     }
 
     private fun tocLabel(name: String, title: String?, spaceBeforeColon: Boolean = true): String =

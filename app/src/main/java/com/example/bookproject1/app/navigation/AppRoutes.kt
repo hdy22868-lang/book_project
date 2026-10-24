@@ -12,7 +12,10 @@ data class BookTocRoute(val partId: Int)
 
 // مسار شاشة القراءة (تحتاج رقم الجزء ونقطة بداية ونهاية النص)
 @Serializable
-data class BookReadingRoute(val partId: Int, val startIndex: Int, val endIndex: Int)
+data class BookReadingRoute(val partId: Int,
+                            val startIndex: Int,
+                            val endIndex: Int,
+                            val targetParagraphId: Int? = null)
 @Serializable
 object SearchRoute
 @Serializable
@@ -23,3 +26,5 @@ data class FavoriteDetailRoute(val highlightId: Int)
 // مسار شاشة البداية (Splash)
 @Serializable
 object SplashRoute
+@Serializable
+object FavoritesRoute

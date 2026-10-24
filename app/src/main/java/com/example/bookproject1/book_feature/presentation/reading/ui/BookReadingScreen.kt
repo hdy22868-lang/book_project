@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -54,10 +55,22 @@ fun BookReadingScreen(
     var letterSpacingSp by remember { mutableFloatStateOf(0.5f) }
 
     var showColorBar by remember { mutableStateOf(false) }
-    var highlightsMap by remember { mutableStateOf(mapOf<Int, List<TextHighlight>>()) }
 
     var selectedParagraph by remember { mutableStateOf<BookParagraph?>(null) }
     var selectedText by remember { mutableStateOf<String?>(null) }
+
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(uiState.paragraphs, uiState.targetParagraphId) {
+        val targetId = uiState.targetParagraphId
+        if (targetId != null && uiState.paragraphs.isNotEmpty()) {
+            val targetIndex = uiState.paragraphs.indexOfFirst { it.id == targetId }
+            if (targetIndex >= 0) {
+                val actualIndex = if (uiState.subtitle != null) targetIndex + 1 else targetIndex
+                listState.animateScrollToItem(actualIndex)
+            }
+        }
+    }
 
     AlMasabeehTheme(darkTheme = isDarkTheme) {
         Scaffold(
@@ -105,16 +118,11 @@ fun BookReadingScreen(
                         val textToHighlight = selectedText
 
                         if (targetParagraph != null && !textToHighlight.isNullOrBlank()) {
-                            val currentHls = highlightsMap[targetParagraph.id] ?: emptyList()
-                            highlightsMap = highlightsMap + (
-                                    targetParagraph.id to (currentHls + TextHighlight(textToHighlight, chosenColor))
-                                    )
                             viewModel.saveHighlightWithColor(
                                 textToHighlight,
                                 targetParagraph,
                                 chosenColor.toArgb().toLong()
                             )
-
                             Toast.makeText(context, "تمت الإضافة إلى المفضلة", Toast.LENGTH_SHORT).show()
                             showColorBar = false
                             selectedText = null
@@ -145,6 +153,7 @@ fun BookReadingScreen(
                     }
                     else -> {
                         LazyColumn(
+                            state = listState,
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -171,7 +180,7 @@ fun BookReadingScreen(
                                     fontSize = fontSizeSp,
                                     lineSpacingMultiplier = lineSpacingMultiplier,
                                     letterSpacingSp = letterSpacingSp,
-                                    highlights = highlightsMap[paragraph.id] ?: emptyList(),
+                                    highlights = uiState.highlightsMap[paragraph.id] ?: emptyList(),
                                     onTextSelected = { para, text ->
                                         selectedParagraph = para
                                         selectedText = text

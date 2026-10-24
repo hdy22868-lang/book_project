@@ -53,7 +53,9 @@
     <string name="about_card_subtitle">فريق العمل ومعلومات الإصدار</string>
 
     <!-- ورقة ونصوص المفضلة -->
-    <string name="favorites_sheet_title">النصوص المفضلة (%1$d)</string>
+    <string name="nav_favorites">المفضلة</string>
+    <string name="favorites_title">النصوص المفضلة</string>
+    <string name="favorites_count_label">عدد النصوص المحفوظة: %1$d</string>
     <string name="favorites_empty_desc">لم تقم بتظليل أو حفظ أي نص بعد.\nيمكنك تظليل أي نص أثناء القراءة ليُحفظ هنا.</string>
     <string name="favorite_detail_title">النص المفضل</string>
     <string name="favorite_not_found">تعذر العثور على النص المفضل.</string>
@@ -70,4 +72,5 @@
     <string name="about_collection_title">الجمع والتدوين</string>
     <string name="about_design_title">التصميم والإخراج</string>
     <string name="about_development_title">تطوير وبرمجة</string>
+    <string name="continue_reading">متابعة القراءة في النص الأصلي</string>
 </resources>

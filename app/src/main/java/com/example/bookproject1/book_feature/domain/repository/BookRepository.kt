@@ -1,5 +1,6 @@
 package com.example.bookproject1.book_feature.domain.repository
 
+import com.example.bookproject1.book_feature.data.util.TocItemTuple
 import com.example.bookproject1.book_feature.domain.model.BookHighlight
 import com.example.bookproject1.book_feature.domain.model.BookParagraph
 import com.example.bookproject1.book_feature.domain.model.TocNode
@@ -24,4 +25,8 @@ interface BookRepository {
     suspend fun saveHighlight(highlight: BookHighlight)
 
     suspend fun deleteHighlight(id: Int)
+
+    suspend fun getParagraphById(id: Int): BookParagraph?
+
+    suspend fun getSectionRangeForParagraph(paragraphId: Int): TocItemTuple?
 }

@@ -41,8 +41,7 @@ fun HomeScreenContent(
     uiState: HomeUiState,
     onToggleLayout: () -> Unit,
     onPartClick: (Int) -> Unit,
-    onSearchClick: () -> Unit,
-    onSettingsClick: () -> Unit = {},
+    onTabSelected: (BottomTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableStateOf(BottomTab.HOME) }
@@ -81,14 +80,7 @@ fun HomeScreenContent(
         bottomBar = {
             BottomBar(
                 currentTab = selectedTab,
-                onTabSelected = { tab ->
-                    selectedTab = tab
-                    when (tab) {
-                        BottomTab.SEARCH -> onSearchClick()
-                        BottomTab.SETTINGS -> onSettingsClick()
-                        BottomTab.HOME -> {}
-                    }
-                }
+                onTabSelected = onTabSelected
             )
         },
         containerColor = MaterialTheme.colorScheme.background
